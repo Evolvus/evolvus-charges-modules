@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 var chargesGlParametersSchema = new mongoose.Schema({
   // Add all attributes below tenantId

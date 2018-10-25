@@ -9,6 +9,7 @@ const audit = docketClient.audit;
 
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargesglparameters", dbSchema);
+var schemeType = require("@evolvus/evolvus-charges-scheme-type");
 
 var modelSchema = model.schema;
 
@@ -36,23 +37,36 @@ module.exports.save = (chargesGlParametersObject, ipAddress, createdBy) => {
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
-      var res = validate(chargesGlParametersObject, modelSchema);
-      debug("validation status: ", JSON.stringify(res));
-      if (!res.valid) {
-        reject(res.errors);
-      } else {
-        // Other validations here
-
-
-        // if the object is valid, save the object to the database
-        collection.save(chargesGlParametersObject).then((result) => {
-          debug(`saved successfully ${result}`);
-          resolve(result);
-        }).catch((e) => {
-          debug(`failed to save with an error: ${e}`);
-          reject(e);
-        });
-      }
+      let filter = {
+        "name": chargesGlParametersObject.schemeType
+      };
+      Promise.all([collection.find({}, {}, 0, 0), schemeType.find(filter, {}, 0, 1, ipAddress, createdBy)]).then((result) => {        
+        if (_.isEmpty(result[0])) {
+          var res = validate(chargesGlParametersObject, modelSchema);
+          debug("validation status: ", JSON.stringify(res.valid));
+          if (!res.valid) {
+            reject(res.errors);
+          } else {
+            if (_.isEmpty(result[1])) {
+              debug("Scheme Type not found");
+              reject("Invalid Scheme Type.");
+            } else {             
+              collection.save(chargesGlParametersObject).then((result) => {
+                debug(`saved successfully ${result}`);
+                resolve(result);
+              }).catch((e) => {
+                debug(`failed to save with an error: ${e}`);
+                reject(e);
+              });
+            }
+          }
+        } else {
+          reject("GL Account exists.")
+        }
+      }).catch(e => {
+        debug(`Finding GL Account and scheme type promise failed: ${e}`);
+        reject(e);
+      });
     } catch (e) {
       audit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_UPDATE";
       audit.ipAddress = ipAddress;
@@ -97,7 +111,7 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
       if (errors.length != 0) {
         reject(errors[0][0]);
       } else {
-        collection.update({"_id":id}, updateObject).then((result) => {
+        collection.update({ "_id": id }, updateObject).then((result) => {
           if (result.nModified == 1) {
             debug(`updated successfully ${result}`);
             resolve(result);
