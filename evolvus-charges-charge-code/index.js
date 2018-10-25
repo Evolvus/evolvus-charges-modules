@@ -6,11 +6,11 @@ const docketClient = require("@evolvus/evolvus-docket-client");
 const audit = docketClient.audit;
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargeCode", db.schema);
-const schemeType = require("@teamtagevo/evolvus-charges-scheme-type");
-const transactionType = require("@teamtagevo/evolvus-charges-transaction-type");
+const schemeType = require("@evolvus/evolvus-charges-scheme-type");
+const transactionType = require("@evolvus/evolvus-charges-transaction-type");
 const _ = require("lodash");
 
-const dbSchema = db.schema;
+const dbSchema = db.schema; 
 const modelSchema = model.schema;
 
 module.exports = {

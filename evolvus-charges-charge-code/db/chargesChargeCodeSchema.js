@@ -90,4 +90,6 @@ chargesChargeCodeSchema.index({
   unique: true
 });
 
-module.exports.schema = chargesChargeCodeSchema;
+//module.exports.schema = chargesChargeCodeSchema;
+module.exports = mongoose.model('chargecode', chargesChargeCodeSchema);
+
