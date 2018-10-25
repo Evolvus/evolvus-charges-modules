@@ -1,7 +1,7 @@
 {
   "name": "@evolvus/evolvus-charges-scheme-type",
-  "version": "1.0.0",
-  "description": "ChargesSchemeType encapsulates ChargesSchemeType functionality across all Evolvus products",
+  "version": "1.0.1",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/Evolvus/evolvus-charges-scheme-type#readme",
   "dependencies": {
-    "@evolvus/evolvus-mongo-dao": "^1.0.1",
-    "debug": "^3.1.0",
     "@evolvus/evolvus-docket-client": "^1.0.3",
+    "@evolvus/evolvus-mongo-dao": "^1.0.2",
+    "debug": "^3.1.0",
     "jsonschema": "^1.2.4",
     "lodash": "^4.17.11",
     "mongoose": "^5.0.7",
