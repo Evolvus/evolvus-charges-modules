@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-gl-parameters",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ChargesGlParameters encapsulates ChargesGlParameters functionality across all Evolvus products",
   "main": "index.js",
   "scripts": {
@@ -21,10 +21,12 @@
   },
   "homepage": "https://github.com/Evolvus/evolvus-charges-gl-parameters#readme",
   "dependencies": {
-    "@evolvus/evolvus-charges-scheme-type": "^1.0.0",
+    "@evolvus/evolvus-charges-scheme-type": "^1.0.1",
+    "@evolvus/evolvus-docket-client": "^1.0.3",
+    "@evolvus/evolvus-mongo-dao": "^1.0.2",
     "debug": "^3.1.0",
-    "evolvus-docket-client": "^0.0.5",
     "jsonschema": "^1.2.4",
+    "lodash": "^4.17.11",
     "mongoose": "^5.0.7",
     "validator": "^9.4.1"
   },
