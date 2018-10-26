@@ -91,3 +91,5 @@ chargesChargeCodeSchema.index({
 });
 
 
+module.exports.schema=chargesChargeCodeSchema;
+
