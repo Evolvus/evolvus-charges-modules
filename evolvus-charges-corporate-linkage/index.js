@@ -24,7 +24,7 @@ module.exports = {
 module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      if (chargesGlParametersObject == null) {
+      if (corporateLinkageObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
       audit.name = "CHARGES_CORPORATE_LINKAGE_SAVE INITIALIZED";
@@ -44,7 +44,7 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
           reject("Invalid Charge Plan");
         } else {
           corporateLinkageObject.chargePlan = result[0]._id;
-          var res = validate(chargesGlParametersObject, modelSchema);
+          var res = validate(corporateLinkageObject, modelSchema);
           debug("validation status: ", JSON.stringify(res.valid));
           if (!res.valid) {
             reject(res.errors);
