@@ -8,7 +8,7 @@ const docketClient = require("@evolvus/evolvus-docket-client");
 const audit = docketClient.audit;
 
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
-const collection = new Dao("chargesglparameters", dbSchema);
+const collection = new Dao("chargesglparameter", dbSchema);
 var schemeType = require("@evolvus/evolvus-charges-scheme-type");
 
 var modelSchema = model.schema;
