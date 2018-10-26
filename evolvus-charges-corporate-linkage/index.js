@@ -43,13 +43,13 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
           debug("Invalid Charge Plan");
           reject("Invalid Charge Plan");
         } else {
-          corporateLinkageObject.chargePlan = result[0]._id;
           var res = validate(corporateLinkageObject, modelSchema);
           debug("validation status: ", JSON.stringify(res.valid));
           if (!res.valid) {
             reject(res.errors);
           } else {
-            collection.save(chargesGlParametersObject).then((result) => {
+            corporateLinkageObject.chargePlan = result[0]._id;
+            collection.save(corporateLinkageObject).then((result) => {
               debug(`saved successfully ${result}`);
               resolve(result);
             }).catch((e) => {
@@ -63,10 +63,10 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
         reject(e);
       });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_UPDATE";
+      audit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
       audit.ipAddress = ipAddress;
       audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(chargesGlParametersObject);
+      audit.keyDataAsJSON = JSON.stringify(corporateLinkageObject);
       audit.details = `Charges gl paramaters save is initiated`;
       audit.eventDateTime = Date.now();
       audit.status = "FAILURE";
@@ -146,11 +146,11 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
       var populate=['chargePlan'];
-      collection.find(filter,populate, orderby, skipCount, limit).then((result) => {
-        debug(`Number of GlParameters found is ${result.length}`);
+      collection.findAndPopulate(filter,populate, orderby, skipCount, limit).then((result) => {
+        debug(`Number of records found is ${result.length}`);
         resolve(result);
       }).catch((e) => {
-        debug(`failed to fetch GlParameters: ${e}`);
+        debug(`failed to fetch records: ${e}`);
         reject(e);
       });
     } catch (e) {
