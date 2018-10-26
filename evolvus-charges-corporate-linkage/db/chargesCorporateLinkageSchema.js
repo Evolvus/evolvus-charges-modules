@@ -9,7 +9,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
   },
   chargePlan: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "chargeplans"
+    ref: "chargeplan"
   },
   billingAddress: {
     type: String,
@@ -34,7 +34,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     max: 20,
     validate: {
       validator: function (v) {
-        return /^[a-z0-9]+$/i.test(v);
+        return /^[A-Za-z0-9]+$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric."
     }
@@ -46,7 +46,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function (v) {
-        return /^[a-z0-9]+$/i.test(v);
+        return /^[A-Za-z0-9]+$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric."
     }

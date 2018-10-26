@@ -26,13 +26,13 @@ module.exports.schema = {
       "type": "string",
       "minLength": 10,
       "maxLength": 20,
-      "pattern":"/^[a-z0-9]+$/i"
+      "pattern":"^[A-Za-z0-9]+$"
     },
     "GSTINnumber": {
       "type": "string",
       "minLength": 15,
       "maxLength": 15,
-      "pattern":"/^[a-z0-9]+$/i"
+      "pattern":"^[A-Za-z0-9]+$"
     },
     "createdBy": {
       "type": "string"
