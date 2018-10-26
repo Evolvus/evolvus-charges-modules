@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-charge-plan",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,11 +21,10 @@
   },
   "homepage": "https://github.com/Evolvus/evolvus-charges-chargePlan#readme",
   "dependencies": {
-    "@evolvus/evolvus-charges-charge-code": "^1.0.1",
+    "@evolvus/evolvus-charges-charge-code": "^1.0.2",
     "@evolvus/evolvus-docket-client": "^1.0.3",
-    "@evolvus/evolvus-mongo-dao": "^1.0.1",
+    "@evolvus/evolvus-mongo-dao": "^1.0.2",
     "debug": "^3.1.0",
-    "evolvus-docket-client": "^0.0.5",
     "express": "^4.16.4",
     "jsonschema": "^1.2.4",
     "mongoose": "^5.0.7",
