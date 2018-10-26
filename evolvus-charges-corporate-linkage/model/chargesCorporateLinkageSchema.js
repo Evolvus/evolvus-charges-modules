@@ -6,6 +6,9 @@ module.exports.schema = {
   "title": "chargesCorporateLinkageModel",
   "type": "object",
   "properties": {
+    "corporateName":{
+      "type":"string"
+    },
     "utilityCode": {
       "type": "string"
     },
@@ -57,5 +60,5 @@ module.exports.schema = {
       "default": "false"
     }
   },
-  "required": ["utilityCode","chargePlan","corporateAccount","emailId","GSTINnumber","billingAddress","createdBy","createdDateAndTime","updatedBy","updatedDateAndTime"]
+  "required": ["corporateName","utilityCode","chargePlan","corporateAccount","emailId","GSTINnumber","billingAddress","createdBy","createdDateAndTime","updatedBy","updatedDateAndTime"]
 };

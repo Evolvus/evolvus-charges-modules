@@ -2,7 +2,10 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 var chargesCorporateLinkageSchema = new mongoose.Schema({
-  
+  corporateName:{
+    type:String,
+    required:true
+  },
   utilityCode: {
     type: String,
     required: true
