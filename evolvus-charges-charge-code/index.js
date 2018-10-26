@@ -5,7 +5,7 @@ const validate = require("jsonschema").validate;
 const docketClient = require("@evolvus/evolvus-docket-client");
 const audit = docketClient.audit;
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
-const collection = new Dao("chargeCode", db.schema);
+const collection = new Dao("chargecode", db.schema);
 const schemeType = require("@evolvus/evolvus-charges-scheme-type");
 const transactionType = require("@evolvus/evolvus-charges-transaction-type");
 const _ = require("lodash");
@@ -41,9 +41,6 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
       if (!res.valid) {
         reject(res.errors);
       }
-
-
-
       getSchemeTypeAndTransactionType(
         chargesChargeCodeObject.schemeType,
         chargesChargeCodeObject.transactionType,
