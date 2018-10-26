@@ -58,7 +58,7 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
 
           collection.find({
             "name": chargePlanObject.name
-          }, {}, 0, 1, ipAddress, createdBy).then((result) => {
+          }, {}, 0, 1).then((result) => {
             if (!_.isEmpty(result[0])) {
               throw new Error(`Charge Plan ${chargePlanObject.name} already exists`);
             }
@@ -101,11 +101,8 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
-      collection.objectModel.find(filter)
-        .populate("chargeCode")
-        .sort(orderby)
-        .skip(skipCount) // skipCount should not be negative
-        .limit(limit)
+      let populate=['chargeCodes'];
+      collection.findAndPopulate(filter, populate, orderby, skipCount, limit)
         .then((result) => {
           debug(`Number of ChargePlan(s) found is ${result.length}`);
           resolve(result);
