@@ -145,8 +145,15 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
-      var populate=['chargePlan'];
-      collection.findAndPopulate(filter,populate, orderby, skipCount, limit).then((result) => {
+      var populate = {
+        path: 'chargePlan',
+        model: 'chargeplan',
+        populate: {
+          path: 'chargeCodes',
+          model: 'chargecode'
+        }
+      };
+      collection.findAndPopulate(filter, populate, orderby, skipCount, limit).then((result) => {
         debug(`Number of records found is ${result.length}`);
         resolve(result);
       }).catch((e) => {
