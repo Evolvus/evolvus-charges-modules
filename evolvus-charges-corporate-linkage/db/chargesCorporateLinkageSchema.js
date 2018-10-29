@@ -10,6 +10,10 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  tenantId:{
+    type:String,
+    required:true
+  },
   chargePlan: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "chargeplan"
