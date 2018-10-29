@@ -10,7 +10,7 @@ const schemeType = require("@evolvus/evolvus-charges-scheme-type");
 const transactionType = require("@evolvus/evolvus-charges-transaction-type");
 const _ = require("lodash");
 
-const dbSchema = db.schema; 
+const dbSchema = db.schema;
 const modelSchema = model.schema;
 
 module.exports = {
@@ -42,11 +42,11 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
         reject(res.errors);
       }
       getSchemeTypeAndTransactionType(
-        chargesChargeCodeObject.schemeType,
-        chargesChargeCodeObject.transactionType,
-        ipAddress,
-        createdBy
-      )
+          chargesChargeCodeObject.schemeType,
+          chargesChargeCodeObject.transactionType,
+          ipAddress,
+          createdBy
+        )
         .then(searchResult => {
           if (_.isEmpty(searchResult[0])) {
             throw new Error("Invalid Scheme Type");
@@ -123,119 +123,207 @@ module.exports.find = (
   });
 };
 
-module.exports.update = (
-  chargesChargeCodeObject,
-  name,
-  ipAddress,
-  createdBy
-) => {
+// module.exports.update = (
+//   chargesChargeCodeObject,
+//   name,
+//   ipAddress,
+//   createdBy
+// ) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       audit.name = "CHARGES_CODE_UPDATE INITIALIZED";
+//       audit.ipAddress = ipAddress;
+//       audit.createdBy = createdBy;
+//       audit.keyDataAsJSON = "";
+//       audit.details = `Charges Code update is initiated`;
+//       audit.eventDateTime = Date.now();
+//       audit.status = "SUCCESS";
+//       docketClient.postToDocket(audit);
+//       var updateObject = {
+//         name: name
+//       };
+//       var schemeTypeFilter = {
+//         name: chargesChargeCodeObject.name
+//       };
+//       getSchemeTypeAndTransactionType(
+//         chargesChargeCodeObject.schemeType,
+//         chargesChargeCodeObject.transactionType,
+//         ipAddress,
+//         createdBy
+//       )
+//         .then(searchResult => {
+//           if (_.isEmpty(searchResult[0])) {
+//             throw new Error("Invalid Scheme Type");
+//           } else if (_.isEmpty(searchResult[1])) {
+//             throw new Error("Invalid Transaction Type");
+//           } else {
+//             collection
+//               .update(updateObject, chargesChargeCodeObject)
+//               .then(result => {
+//                 debug(`modified successfully ${result}`);
+//                 resolve(result);
+//               })
+//               .catch(error => {
+//                 debug(`failed to modify Charge Code: ${error}`);
+//                 reject(error);
+//               });
+//           }
+//         })
+//         .catch(error => {
+//           debug(`failed to fetch Scheme Type and Transaction Type: ${error}`);
+//           reject(error);
+//         });
+//     } catch (error) {
+//       audit.name = "EXCEPTION IN CHARGES_CODE_UPDATE";
+//       audit.ipAddress = ipAddress;
+//       audit.createdBy = createdBy;
+//       audit.keyDataAsJSON = "";
+//       audit.details = ``;
+//       audit.eventDateTime = Date.now();
+//       audit.status = "FAILURE";
+//       docketClient.postToDocket(audit);
+//       debug(`caught exception ${error}`);
+//       reject(error);
+//     }
+//   });
+// };
+//
+// getSchemeTypeAndTransactionType = (
+//   schemeTypeName,
+//   transactionTypeName,
+//   ipAddress,
+//   createdBy
+// ) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       audit.name = "SCHEMETYPE_FIND and TRANSACTION_FIND INITIALIZED";
+//       audit.ipAddress = ipAddress;
+//       audit.createdBy = createdBy;
+//       audit.keyDataAsJSON = "";
+//       audit.details = `SchemeType and TransactionType Find is initiated`;
+//       audit.eventDateTime = Date.now();
+//       audit.status = "SUCCESS";
+//       docketClient.postToDocket(audit);
+//
+//       var schemeTypeFilter = {
+//         name: schemeTypeName
+//       };
+//
+//       var transactionTypeFilter = {
+//         name: transactionTypeName
+//       };
+//
+//       Promise.all([
+//         schemeType.find(schemeTypeFilter, {}, 0, 1, ipAddress, createdBy),
+//         transactionType.find(
+//           transactionTypeFilter,
+//           {},
+//           0,
+//           1,
+//           ipAddress,
+//           createdBy
+//         )
+//       ])
+//         .then(result => {
+//           resolve(result);
+//         })
+//         .catch(error => {
+//           reject(`Failed to fetch Scheme Type and Transaction Type : ${error}`);
+//         });
+//     } catch (e) {
+//       audit.name = "EXCEPTION IN SCHEMETYPE_FIND and TRANSACTIONTYPE_FIND";
+//       audit.ipAddress = ipAddress;
+//       audit.createdBy = createdBy;
+//       audit.keyDataAsJSON = "";
+//       audit.details = ``;
+//       audit.eventDateTime = Date.now();
+//       audit.status = "FAILURE";
+//       docketClient.postToDocket(audit);
+//       debug(`caught exception ${e}`);
+//       reject(e);
+//     }
+//   });
+// };
+
+module.exports.update = (code, updateObject, ipAddress, createdBy) => {
+  console.log("UPDATE OBJECT", updateObject);
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "CHARGES_CODE_UPDATE INITIALIZED";
+      if (updateObject == null) {
+        throw new Error("IllegalArgumentException: Input value is null or undefined");
+      }
+      audit.name = "CHARGECODE_UPDATE INITIALIZED";
       audit.ipAddress = ipAddress;
       audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = `Charges Code update is initiated`;
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
+      audit.details = `ChargeCode update is initiated`;
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
-      var updateObject = {
-        name: name
-      };
-      var schemeTypeFilter = {
-        name: chargesChargeCodeObject.name
-      };
-      getSchemeTypeAndTransactionType(
-        chargesChargeCodeObject.schemeType,
-        chargesChargeCodeObject.transactionType,
-        ipAddress,
-        createdBy
-      )
-        .then(searchResult => {
-          if (_.isEmpty(searchResult[0])) {
-            throw new Error("Invalid Scheme Type");
-          } else if (_.isEmpty(searchResult[1])) {
-            throw new Error("Invalid Transaction Type");
-          } else {
-            collection
-              .update(updateObject, chargesChargeCodeObject)
-              .then(result => {
-                debug(`modified successfully ${result}`);
-                resolve(result);
-              })
-              .catch(error => {
-                debug(`failed to modify Charge Code: ${error}`);
-                reject(error);
-              });
+      var result;
+      var errors = [];
+      _.mapKeys(updateObject, function(value, key) {
+        if (modelSchema.properties[key] != null) {
+          result = validate(value, modelSchema.properties[key]);
+          if (result.errors.length != 0) {
+            result.errors[0].property = key;
+            errors.push(result.errors);
           }
-        })
-        .catch(error => {
-          debug(`failed to fetch Scheme Type and Transaction Type: ${error}`);
-          reject(error);
-        });
-    } catch (error) {
-      audit.name = "EXCEPTION IN CHARGES_CODE_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = ``;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
-      debug(`caught exception ${error}`);
-      reject(error);
-    }
-  });
-};
-
-getSchemeTypeAndTransactionType = (
-  schemeTypeName,
-  transactionTypeName,
-  ipAddress,
-  createdBy
-) => {
-  return new Promise((resolve, reject) => {
-    try {
-      audit.name = "SCHEMETYPE_FIND and TRANSACTION_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = `SchemeType and TransactionType Find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
-
-      var schemeTypeFilter = {
-        name: schemeTypeName
-      };
-
-      var transactionTypeFilter = {
-        name: transactionTypeName
-      };
-
-      Promise.all([
-        schemeType.find(schemeTypeFilter, {}, 0, 1, ipAddress, createdBy),
-        transactionType.find(
-          transactionTypeFilter,
-          {},
-          0,
-          1,
-          ipAddress,
-          createdBy
-        )
-      ])
-        .then(result => {
-          resolve(result);
-        })
-        .catch(error => {
-          reject(`Failed to fetch Scheme Type and Transaction Type : ${error}`);
-        });
+        }
+      });
+      debug("Validation status: ", JSON.stringify(result));
+      if (errors.length != 0) {
+        reject(errors[0][0]);
+      } else {
+        Promise.all([schemeType.find({
+            "name": updateObject.schemeType
+          }, {}, 0, 1, ipAddress, createdBy), transactionType.find({
+            "name": updateObject.transactionType
+          }, {}, 0, 1, ipAddress, createdBy)])
+          .then((findResult) => {
+            console.log("FIND RESULT SCHEME TYPE AND TRANSACTION TYPE", findResult);
+            if (_.isEmpty(findResult[0])) {
+              throw new Error("Invalid Scheme Type");
+            } else if (_.isEmpty(findResult[1])) {
+              throw new Error("Invalid Transaction Type");
+            } else {
+              collection.find({
+                "name": code
+              }, {}, 0, 1).then((findResult) => {
+                if ((!_.isEmpty(findResult)) && (findResult.name != code.toUpperCase())) {
+                  throw new Error(`ChargeCode Name cannot be modified`);
+                } else {
+                  collection.update({
+                    "name": code
+                  }, updateObject).then((result) => {
+                    if (result.nModified == 1) {
+                      debug(`updated successfully ${result}`);
+                      resolve(result);
+                    } else {
+                      debug(`Not able to update. ${result}`);
+                      reject("Not able to update.Contact Administrator");
+                    }
+                  }).catch((e) => {
+                    debug(`Failed to update with an error ${e}`);
+                    reject(e);
+                  });
+                }
+              }).catch((e) => {
+                debug(`Failed to Find with an error ${e}`);
+                reject(e);
+              });
+            }
+          }).catch((e) => {
+            debug(`Failed to Find in promiseAll with an error ${e}`);
+            reject(e);
+          });
+      }
     } catch (e) {
-      audit.name = "EXCEPTION IN SCHEMETYPE_FIND and TRANSACTIONTYPE_FIND";
+      audit.name = "EXCEPTION IN CHARGECODE_UPDATE";
       audit.ipAddress = ipAddress;
       audit.createdBy = createdBy;
-      audit.keyDataAsJSON = ""; 
-      audit.details = ``;
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
+      audit.details = `ChargeCode UPDATE failed`;
       audit.eventDateTime = Date.now();
       audit.status = "FAILURE";
       docketClient.postToDocket(audit);

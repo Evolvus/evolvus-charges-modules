@@ -40,7 +40,7 @@ module.exports.save = (chargesGlParametersObject, ipAddress, createdBy) => {
       let filter = {
         "name": chargesGlParametersObject.schemeType
       };
-      Promise.all([collection.find({}, {}, 0, 0), schemeType.find(filter, {}, 0, 1, ipAddress, createdBy)]).then((result) => {        
+      Promise.all([collection.find({}, {}, 0, 0), schemeType.find(filter, {}, 0, 1, ipAddress, createdBy)]).then((result) => {
         if (_.isEmpty(result[0])) {
           var res = validate(chargesGlParametersObject, modelSchema);
           debug("validation status: ", JSON.stringify(res.valid));
@@ -50,7 +50,7 @@ module.exports.save = (chargesGlParametersObject, ipAddress, createdBy) => {
             if (_.isEmpty(result[1])) {
               debug("Scheme Type not found");
               reject("Invalid Scheme Type.");
-            } else {             
+            } else {
               collection.save(chargesGlParametersObject).then((result) => {
                 debug(`saved successfully ${result}`);
                 resolve(result);
@@ -98,7 +98,7 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
       docketClient.postToDocket(audit);
       var result;
       var errors = [];
-      _.mapKeys(updateObject, function (value, key) {
+      _.mapKeys(updateObject, function(value, key) {
         if (modelSchema.properties[key] != null) {
           result = validate(value, modelSchema.properties[key]);
           if (result.errors.length != 0) {
@@ -111,24 +111,39 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
       if (errors.length != 0) {
         reject(errors[0][0]);
       } else {
-        collection.update({ "_id": id }, updateObject).then((result) => {
-          if (result.nModified == 1) {
-            debug(`updated successfully ${result}`);
-            resolve(result);
-          } else {
-            debug(`Not able to update. ${result}`);
-            reject("Not able to update.Contact Administrator");
-          }
-        }).catch((e) => {
-          debug(`failed to save with an error: ${e}`);
-          reject(e);
-        });
+        let filter = {
+          "name": updateObject.schemeType
+        };
+        schemeType.find(filter, {}, 0, 1, ipAddress, createdBy)
+          .then((result) => {
+            if (_.isEmpty(result) && !_.isEmpty(updateObject.schemeType)) {
+              throw new Error("Invalid Scheme Type.");
+            } else {
+              collection.update({
+                "_id": id
+              }, updateObject).then((result) => {
+                if (result.nModified == 1) {
+                  debug(`updated successfully ${result}`);
+                  resolve(result);
+                } else {
+                  debug(`Not able to update. ${result}`);
+                  reject("Not able to update.Contact Administrator");
+                }
+              }).catch((e) => {
+                debug(`failed to save with an error: ${e}`);
+                reject(e);
+              });
+            }
+          }).catch((e) => {
+            debug(`Failed to find SchemeType ${e}`);
+            reject(e);
+          });
       }
     } catch (e) {
       audit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_UPDATE";
       audit.ipAddress = ipAddress;
       audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(update);
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
       audit.details = `Charges gl paramaters UPDATE failed`;
       audit.eventDateTime = Date.now();
       audit.status = "FAILURE";
@@ -171,6 +186,3 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
     }
   });
 };
-
-
-

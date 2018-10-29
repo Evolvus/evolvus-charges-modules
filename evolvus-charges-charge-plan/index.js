@@ -101,7 +101,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
-      let populate=['chargeCodes'];
+      let populate = ['chargeCodes'];
       collection.findAndPopulate(filter, populate, orderby, skipCount, limit)
         .then((result) => {
           debug(`Number of ChargePlan(s) found is ${result.length}`);
@@ -158,12 +158,12 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         let filter = {
           "name": code
         }
-        collection.find(filter, orderby, skipCount, limit, ipAddress, createdBy).then((findResult) => {
-          if (_.isEmpty(result[0])) {
+        collection.find(filter, {}, 0, 1).then((findResult) => {
+          if (_.isEmpty(findResult[0])) {
             throw new Error(`ChargePlan ${code.toUpperCase()}, not found `);
           }
-          if ((!_.isEmpty(result[0])) && (result[0].name != code.toUpperCase())) {
-            throw new Error(`ChargePlan ${updateObject.name.toUpperCase()} already exists`);
+          if ((!_.isEmpty(findResult[0])) && (findResult[0].name != code.toUpperCase())) {
+            throw new Error(`ChargePlan Name ${code} cannot be modified`);
           }
           collection.update({
             "name": code
@@ -188,7 +188,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       audit.name = "EXCEPTION IN CHARGEPLAN_UPDATE";
       audit.ipAddress = ipAddress;
       audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(update);
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
       audit.details = `ChargePlan UPDATE failed`;
       audit.eventDateTime = Date.now();
       audit.status = "FAILURE";
