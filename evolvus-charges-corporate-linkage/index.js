@@ -150,7 +150,11 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         model: 'chargeplan',
         populate: {
           path: 'chargeCodes',
-          model: 'chargecode'
+          model: 'chargecode',
+          populate: {
+            path: 'transactionType',
+            model: 'chargesTransactionType'
+          }
         }
       };
       collection.findAndPopulate(filter, populate, orderby, skipCount, limit).then((result) => {
