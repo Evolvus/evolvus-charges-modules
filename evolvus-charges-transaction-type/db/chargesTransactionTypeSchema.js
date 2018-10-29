@@ -12,6 +12,20 @@ var chargesTransactionTypeSchema = new mongoose.Schema({
     unique: true
   },
 
+  type: {
+    type: String,
+    required: true,
+    min: 5,
+    max: 25
+  },
+
+  code: {
+    type: String,
+    required: true,
+    min: 5,
+    max: 25
+  },
+
   schemeType: {
     type: String,
     required: true,
@@ -25,35 +39,35 @@ var chargesTransactionTypeSchema = new mongoose.Schema({
     min: 5,
     max: 35
   },
-  
-  createdDateAndTime: { 
+
+  createdDateAndTime: {
     type: Date,
     required: true
   },
-  
+
   updatedBy: {
     type: String,
     required: true,
     min: 5,
     max: 35
   },
-  
-  updatedDateAndTime: { 
+
+  updatedDateAndTime: {
     type: Date,
     required: true
   },
-  
+
   enabledFlag: {
     type: String,
     enum: ["true", "false"],
     default: "true"
   },
-  
+
   deletedFlag: {
     type: String,
     enum: ["true", "false"],
     default: "false"
   }
-});  
+});
 
 module.exports.schema = chargesTransactionTypeSchema;
