@@ -42,17 +42,18 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
         reject(res.errors);
       }
       getSchemeTypeAndTransactionType(
-          chargesChargeCodeObject.schemeType,
-          chargesChargeCodeObject.transactionType,
-          ipAddress,
-          createdBy
-        )
+        chargesChargeCodeObject.schemeType,
+        chargesChargeCodeObject.transactionType,
+        ipAddress,
+        createdBy
+      )
         .then(searchResult => {
           if (_.isEmpty(searchResult[0])) {
             throw new Error("Invalid Scheme Type");
           } else if (_.isEmpty(searchResult[1])) {
             throw new Error("Invalid Transaction Type");
           } else {
+            chargesChargeCodeObject.transactionType = searchResult[1]._id;
             collection
               .save(chargesChargeCodeObject)
               .then(result => {
@@ -98,8 +99,8 @@ module.exports.find = (
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
-      collection
-        .find(filter, orderby, skipCount, limit)
+      let populate = ['transactionType'];
+      collection.findAndPopulate(filter, populate, orderby, skipCount, limit)
         .then(result => {
           debug(`Number of Charge Code found is ${result.length}`);
           resolve(result);
@@ -262,7 +263,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       docketClient.postToDocket(audit);
       var result;
       var errors = [];
-      _.mapKeys(updateObject, function(value, key) {
+      _.mapKeys(updateObject, function (value, key) {
         if (modelSchema.properties[key] != null) {
           result = validate(value, modelSchema.properties[key]);
           if (result.errors.length != 0) {
@@ -276,10 +277,10 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         reject(errors[0][0]);
       } else {
         Promise.all([schemeType.find({
-            "name": updateObject.schemeType
-          }, {}, 0, 1, ipAddress, createdBy), transactionType.find({
-            "name": updateObject.transactionType
-          }, {}, 0, 1, ipAddress, createdBy)])
+          "name": updateObject.schemeType
+        }, {}, 0, 1, ipAddress, createdBy), transactionType.find({
+          "name": updateObject.transactionType
+        }, {}, 0, 1, ipAddress, createdBy)])
           .then((findResult) => {
             console.log("FIND RESULT SCHEME TYPE AND TRANSACTION TYPE", findResult);
             if (_.isEmpty(findResult[0])) {
