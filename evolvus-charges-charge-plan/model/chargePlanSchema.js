@@ -9,7 +9,7 @@ module.exports.schema = {
     "name": {
       "type": "string",
       "minLength": 2,
-      "maxLength": 20,
+      "maxLength": 50,
       "unique": "true",
       "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
     },
