@@ -8,7 +8,7 @@ var chargesTransactionTypeSchema = new mongoose.Schema({
     type: String,
     required: true,
     min: 5,
-    max: 25,
+    max: 50,
     unique: true
   },
 
@@ -23,7 +23,7 @@ var chargesTransactionTypeSchema = new mongoose.Schema({
     type: String,
     required: true,
     min: 5,
-    max: 25
+    max: 50
   },
 
   schemeType: {
