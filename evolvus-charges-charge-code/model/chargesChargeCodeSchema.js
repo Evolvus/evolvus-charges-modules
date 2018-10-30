@@ -9,45 +9,45 @@ module.exports.schema = {
     
     "name": {
       "type": "string",
-      "minLength": "5",
-      "maxLength": "20",
+      "minLength": 5,
+      "maxLength": 50,
       "unique": "true"
     },
     
     "type": {
       "type": "string",
-      "minLength":"5",
-      "maxLength": "20"
+      "minLength":5,
+      "maxLength": 20
     },
     
     "amount": {
       "type": "number",
-      "minLength": "1",
-      "maxLength": "10"
+      "minLength": 1,
+      "maxLength": 10
     },
     
     "description": {
       "type": "string",
-      "minLength": "5",
-      "maxLength": "200"
+      "minLength": 5,
+      "maxLength": 200
     },
     
     "schemeType": {
       "type": "string",     
-      "minLength": "2",
-      "maxLength": "10"
+      "minLength": 2,
+      "maxLength": 10
     },
     
     "transactionType": {
       "type": "string",      
-      "minLength": "5",
-      "maxLength": "25"
+      "minLength": 5,
+      "maxLength": 50
     },
     
     "createdBy": {
       "type": "string",    
-      "minLength": "5",
-      "maxLength": "35"
+      "minLength": 5,
+      "maxLength": 35
     },
     
     "createdDateAndTime": { 
@@ -57,8 +57,8 @@ module.exports.schema = {
     
     "updatedBy": {
       "type": "string",
-      "minLength": "5",
-      "maxLength": "35"
+      "minLength": 5,
+      "maxLength": 35
     },
     
     "updatedDateAndTime": { 
