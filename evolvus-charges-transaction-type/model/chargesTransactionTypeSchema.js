@@ -9,8 +9,8 @@ module.exports.schema = {
 
     "name": {
       "type": "string",
-      "minLength": "5",
-      "maxLength": "25",
+      "minLength": 5,
+      "maxLength": 50,
       "unique": "true"
     },
 
@@ -23,19 +23,19 @@ module.exports.schema = {
     "code": {
       "type": "string",
       "minLength": 5,
-      "maxLength": 25
+      "maxLength": 50,
     },
 
     "schemeType": {
       "type": "string",
-      "minLength": "2",
-      "maxLength": "10"
+      "minLength": 2,
+      "maxLength": 10
     },
 
     "createdBy": {
       "type": "string",
-      "minLength": "5",
-      "maxLength": "35"
+      "minLength": 5,
+      "maxLength": 35
     },
 
     "createdDateAndTime": {
@@ -45,8 +45,8 @@ module.exports.schema = {
 
     "updatedBy": {
       "type": "string",
-      "minLength": "5",
-      "maxLength": "35"
+      "minLength": 5,
+      "maxLength": 35
     },
 
     "updatedDateAndTime": {
