@@ -1,7 +1,8 @@
+const _ = require("lodash");
 /*
  ** JSON Schema representation of the chargesBilling model
  */
-module.exports.schema = {
+var chargesBillingSchema = {
   "$schema": "http://json-schema.org/draft-06/schema#",
   "title": "chargesBillingModel",
   "type": "object",
@@ -10,21 +11,30 @@ module.exports.schema = {
       "type": "string"
     },
     "utilityCode": {
-      "type": "string"
+      "type": "string",
+      "filterable": "true"
     },
     "billNumber": {
-      "type": "string"
+      "type": "string",
+      "filterable": "true"
     },
     "billDate": {
       "type": "String",
       "format": "date-time",
+      "filterable": "true"
     },
     "billFrequency": {
       "type": "string",
       "default": "Monthly"
     },
     "billPeriod": {
-      "type": "string"
+      "type": "string",
+      "filterable": "true"
+    },
+    "billStatus": {
+      "type": "string",
+      "default": "Awaiting Confirmation",
+      "filterable": "true"
     },
     "actualChargesAmount": {
       "type": "number"
@@ -61,3 +71,13 @@ module.exports.schema = {
   },
   "required": ["corporateName", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
 };
+
+module.exports.schema = chargesBillingSchema;
+
+filterAttributes = _.keys(_.pickBy(chargesBillingSchema.properties, (a) => {
+  return (a.filterable);
+}));
+
+
+
+module.exports.filterAttributes = filterAttributes;
