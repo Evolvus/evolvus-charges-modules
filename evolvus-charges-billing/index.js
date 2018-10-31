@@ -124,39 +124,6 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
   });
 };
 
-// module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
-//   return new Promise((resolve, reject) => {
-//     try {
-//       audit.name = "CHARGES_BILLING_FIND INITIALIZED";
-//       audit.ipAddress = ipAddress;
-//       audit.createdBy = createdBy;
-//       audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-//       audit.details = `Charges billing find is initiated`;
-//       audit.eventDateTime = Date.now();
-//       audit.status = "SUCCESS";
-//       docketClient.postToDocket(audit);
-//       collection.find(filter, orderby, skipCount, limit).then((result) => {
-//         debug(`Number of Bills found is ${result.length}`);
-//         resolve(result);
-//       }).catch((e) => {
-//         debug(`failed to fetch GlParameters: ${e}`);
-//         reject(e);
-//       });
-//     } catch (e) {
-//       audit.name = "EXCEPTION IN CHARGES_BILLING_FIND";
-//       audit.ipAddress = ipAddress;
-//       audit.createdBy = createdBy;
-//       audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-//       audit.details = `Charges Billing find failed`;
-//       audit.eventDateTime = Date.now();
-//       audit.status = "FAILURE";
-//       docketClient.postToDocket(audit);
-//       debug(`caught exception ${e}`);
-//       reject(e);
-//     }
-//   });
-// };
-
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
@@ -210,7 +177,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
   });
 };
 
-module.exports.generateBill = (corporate, transactions, createdBy, ipAddress) => {
+module.exports.generateBill = (corporate, transactions,billPeriod, createdBy, ipAddress) => {
   return new Promise((resolve, reject) => {
     try {
       let sum = 0;
@@ -238,7 +205,7 @@ module.exports.generateBill = (corporate, transactions, createdBy, ipAddress) =>
         billingObject.utilityCode = corporate.utilityCode;
         billingObject.createdBy = billingObject.updatedBy = createdBy;
         billingObject.createdDateAndTime = billingObject.billDate = billingObject.updatedDateAndTime = new Date().toISOString();
-        billingObject.billPeriod = "JAN2018";
+        billingObject.billPeriod = billPeriod;
         billingObject.actualGSTAmount = billingObject.finalGSTAmount = sum * (glAccount[0].GSTRate / 100);
         billingObject.actualTotalAmount = billingObject.finalTotalAmount = billingObject.actualChargesAmount + billingObject.actualGSTAmount;
         collection.save(billingObject, ipAddress, createdBy).then((res) => {
