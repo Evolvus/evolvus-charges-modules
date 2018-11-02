@@ -11,6 +11,8 @@ const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("billing", dbSchema);
 var modelSchema = model.schema;
 const sweClient = require("@evolvus/evolvus-swe-client");
+const generatePdf=require("@evolvus/evolvus-charges-generate-pdf");
+const sendEmail=require("@evolvus/evolvus-charges-email-service");
 
 audit.application = "CHARGES";
 audit.source = "Billing";
@@ -255,13 +257,13 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         collection.save(billingObject, ipAddress, createdBy).then((res) => {
           generatePdf.generatePdf(res, corporate, glAccount[0].GSTRate).then((pdf) => {
             debug("PDF generated successfully.");
-            var details = {
+            var emailDetails = {
               utilityCode: corporate.utilityCode,
               billPeriod: res.billDate,
               finalTotalAmount: res.finalTotalAmount,
               billNumber: res.billNumber
             };
-            sendEmail.sendMail(corporate.emailId, details, pdf.filename).then((email) => {
+            sendEmail.sendMail(corporate.emailId, emailDetails, pdf.filename).then((email) => {
               debug("Email sent.");
               resolve(email);
             }).catch(e => {
