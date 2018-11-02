@@ -74,6 +74,11 @@ var chargesBillingSchema = new mongoose.Schema({
   updatedDateAndTime: {
     type: Date,
     required: true
+  },
+  wfInstanceId: {
+    type: String,
+    minlength: 3,
+    maxlength: 20
   }
 
 });

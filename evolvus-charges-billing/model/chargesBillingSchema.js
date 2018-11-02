@@ -67,6 +67,12 @@ var chargesBillingSchema = {
     "updatedDateAndTime": {
       "type": "string",
       "format": "date-time"
+    },
+    "wfInstanceId": {
+      "type": "string",
+      "minLength": 3,
+      "filterable": true,
+      "maxLength": 20
     }
   },
   "required": ["corporateName", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
