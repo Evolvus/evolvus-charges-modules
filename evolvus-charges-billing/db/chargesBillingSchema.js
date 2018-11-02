@@ -79,6 +79,9 @@ var chargesBillingSchema = new mongoose.Schema({
     type: String,
     minlength: 3,
     maxlength: 20
+  },
+  details:{
+    type:Array
   }
 
 });

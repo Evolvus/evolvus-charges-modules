@@ -73,6 +73,9 @@ var chargesBillingSchema = {
       "minLength": 3,
       "filterable": true,
       "maxLength": 20
+    },
+    "details":{
+      "type":"array"
     }
   },
   "required": ["corporateName", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
