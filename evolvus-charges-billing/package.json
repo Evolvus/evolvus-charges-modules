@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-billing",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -23,9 +23,11 @@
   "dependencies": {
     "@evolvus/evolvus-charges-email-service": "^1.0.1",
     "@evolvus/evolvus-charges-generate-pdf": "^1.0.1",
+    "@evolvus/evolvus-charges-gl-parameters": "^1.0.2",
+    "@evolvus/evolvus-docket-client": "^1.0.3",
+    "@evolvus/evolvus-mongo-dao": "^1.0.2",
     "@evolvus/evolvus-swe-client": "^1.0.2",
     "debug": "^3.1.0",
-    "evolvus-docket-client": "^0.0.5",
     "jsonschema": "^1.2.4",
     "mongoose": "^5.0.7",
     "mongoose-unique-validator": "^2.0.0",
