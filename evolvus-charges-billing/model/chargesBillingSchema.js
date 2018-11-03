@@ -33,7 +33,7 @@ var chargesBillingSchema = {
     },
     "billStatus": {
       "type": "string",
-      "default": "Awaiting Confirmation",
+      "default": "AWAITING_VERIFICATION",
       "filterable": "true"
     },
     "actualChargesAmount": {
@@ -76,6 +76,9 @@ var chargesBillingSchema = {
     },
     "details":{
       "type":"array"
+    },
+    "reamarks":{
+      "type":"string"
     }
   },
   "required": ["corporateName", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]

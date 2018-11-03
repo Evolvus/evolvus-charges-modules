@@ -33,7 +33,7 @@ var chargesBillingSchema = new mongoose.Schema({
   billStatus: {
     type: String,
     required: true,
-    default: "Awaiting Confirmation"
+    default: "AWAITING_VERIFICATION"
   },
   actualChargesAmount: {
     type: Number,
@@ -82,6 +82,9 @@ var chargesBillingSchema = new mongoose.Schema({
   },
   details:{
     type:Array
+  },
+  remarks:{
+    type:String
   }
 
 });
