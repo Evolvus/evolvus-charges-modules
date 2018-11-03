@@ -13,6 +13,7 @@ var modelSchema = model.schema;
 const sweClient = require("@evolvus/evolvus-swe-client");
 const generatePdf=require("@evolvus/evolvus-charges-generate-pdf");
 const sendEmail=require("@evolvus/evolvus-charges-email-service");
+var moment=require("moment");
 
 audit.application = "CHARGES";
 audit.source = "Billing";
@@ -229,7 +230,7 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
               object.number = value;
               object.plan = corporate.chargePlan.name;
               sum = sum + (chargeCode.amount * Number(value));
-              object.sum = sum;
+              object.sum = chargeCode.amount * Number(value);
               details.push(object);
             }
           });
@@ -259,7 +260,8 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
             debug("PDF generated successfully.");
             var emailDetails = {
               utilityCode: corporate.utilityCode,
-              billPeriod: res.billDate,
+              billPeriod: res.billPeriod,
+              billDate:moment(res.billDate).format("MMMM DD YYYY"),
               finalTotalAmount: res.finalTotalAmount,
               billNumber: res.billNumber
             };
