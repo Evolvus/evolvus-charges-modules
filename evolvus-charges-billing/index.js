@@ -339,7 +339,11 @@ function generatePDFAndSendMail(billObject, corporateDetails, GSTRate) {
     billObject.fromDate = fromDate;
     billObject.toDate = toDate;
     billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
-    billObject.toWords = toWords(billObject.finalTotalAmount, { currency: true });
+    if (billObject.finalTotalAmount > 0) {
+      billObject.toWords = toWords(billObject.finalTotalAmount, { currency: true });
+    } else {
+      billObject.toWords = "Zero";
+    } 
     generatePdf.generatePdf(billObject, corporateDetails, GSTRate).then((pdf) => {
       debug("PDF generated successfully.");
       var emailDetails = {
@@ -358,11 +362,11 @@ function generatePDFAndSendMail(billObject, corporateDetails, GSTRate) {
         });
       }).catch(e => {
         debug(e);
-        reject(e);
+        resolve(e);
       })
     }).catch(e => {
       debug(e);
-      reject(e)
+      resolve(e)
     });
   })
 
