@@ -37,27 +37,38 @@ var chargesBillingSchema = new mongoose.Schema({
   },
   actualChargesAmount: {
     type: Number,
-    required: true
+    required: true,
+    set: toFixedLength
+
   },
   actualGSTAmount: {
     type: Number,
-    required: true
+    required: true,
+    set: toFixedLength
   },
   actualTotalAmount: {
     type: Number,
-    required: true
+    required: true,
+    set: toFixedLength
+
   },
   finalChargesAmount: {
     type: Number,
-    required: true
+    required: true,
+    set: toFixedLength
+
   },
   finalGSTAmount: {
     type: Number,
-    required: true
+    required: true,
+    set: toFixedLength
+
   },
   finalTotalAmount: {
     type: Number,
-    required: true
+    required: true,
+    set: toFixedLength
+
   },
   createdBy: {
     type: String,
@@ -80,13 +91,17 @@ var chargesBillingSchema = new mongoose.Schema({
     minlength: 3,
     maxlength: 20
   },
-  details:{
-    type:Array
+  details: {
+    type: Array
   },
-  remarks:{
-    type:String
+  remarks: {
+    type: String
   }
 
 });
+
+function toFixedLength(value) {
+  return Number(value.toFixed(2));
+}
 
 module.exports = chargesBillingSchema;
