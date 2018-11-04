@@ -11,9 +11,11 @@ const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("billing", dbSchema);
 var modelSchema = model.schema;
 const sweClient = require("@evolvus/evolvus-swe-client");
-const generatePdf=require("@evolvus/evolvus-charges-generate-pdf");
-const sendEmail=require("@evolvus/evolvus-charges-email-service");
-var moment=require("moment");
+const generatePdf = require("@evolvus/evolvus-charges-generate-pdf");
+const sendEmail = require("@evolvus/evolvus-charges-email-service");
+var moment = require("moment");
+var fs = require("fs");
+let toWords = require('to-words');
 
 audit.application = "CHARGES";
 audit.source = "Billing";
@@ -253,29 +255,16 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         billingObject.createdBy = billingObject.updatedBy = createdBy;
         billingObject.createdDateAndTime = billingObject.billDate = billingObject.updatedDateAndTime = new Date().toISOString();
         billingObject.billPeriod = billPeriod;
-        billingObject.actualGSTAmount = billingObject.finalGSTAmount = sum * (glAccount[0].GSTRate / 100);
+        billingObject.actualGSTAmount = billingObject.finalGSTAmount = sum * Number(glAccount[0].GSTRate / 100).toFixed(2);
         billingObject.actualTotalAmount = billingObject.finalTotalAmount = billingObject.actualChargesAmount + billingObject.actualGSTAmount;
         collection.save(billingObject, ipAddress, createdBy).then((res) => {
-          generatePdf.generatePdf(res, corporate, glAccount[0].GSTRate).then((pdf) => {
-            debug("PDF generated successfully.");
-            var emailDetails = {
-              utilityCode: corporate.utilityCode,
-              billPeriod: res.billPeriod,
-              billDate:moment(res.billDate).format("MMMM DD YYYY"),
-              finalTotalAmount: res.finalTotalAmount,
-              billNumber: res.billNumber
-            };
-            sendEmail.sendMail(corporate.emailId, emailDetails, pdf.filename).then((email) => {
-              debug("Email sent.");
-              resolve(email);
-            }).catch(e => {
-              debug(e);
-              reject(e);
-            })
+          generatePDFAndSendMail(res, corporate, glAccount[0].GSTRate).then(response => {
+            debug(response);
+            resolve(resolve);
           }).catch(e => {
             debug(e);
-            reject(e)
-          });
+            resolve(e);
+          })
 
         }).catch(e => {
           reject(e)
@@ -340,6 +329,44 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
   });
 };
 
+function generatePDFAndSendMail(billObject, corporateDetails, GSTRate) {
+  return new Promise((resolve, reject) => {
+    billObject = billObject.toObject();
+    var date = new Date();
+    var toDate = moment(date).format("DD-MM-YYYY");
+    date.setMonth(date.getMonth() - 1);
+    var fromDate = moment(date).format("DD-MM-YYYY");
+    billObject.fromDate = fromDate;
+    billObject.toDate = toDate;
+    billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
+    billObject.toWords = toWords(billObject.finalTotalAmount, { currency: true });
+    generatePdf.generatePdf(billObject, corporateDetails, GSTRate).then((pdf) => {
+      debug("PDF generated successfully.");
+      var emailDetails = {
+        utilityCode: corporateDetails.utilityCode,
+        billPeriod: billObject.billPeriod,
+        billDate: billObject.date,
+        finalTotalAmount: billObject.finalTotalAmount,
+        billNumber: billObject.billNumber
+      };
+      sendEmail.sendMail(corporateDetails.emailId, emailDetails, pdf.filename).then((email) => {
+        debug("Email sent.");
+        fs.unlink(pdf.filename, (err, res) => {
+          if (err) debug(`Failed to delete PDF ${pdf.filename}`);
+          else debug(`PDF deleted successfully from ${pdf.filename}`);
+          resolve(email);
+        });
+      }).catch(e => {
+        debug(e);
+        reject(e);
+      })
+    }).catch(e => {
+      debug(e);
+      reject(e)
+    });
+  })
+
+}
 
 module.exports.billingObject = {
   corporateName: "",
