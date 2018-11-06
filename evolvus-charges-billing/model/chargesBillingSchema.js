@@ -77,7 +77,10 @@ var chargesBillingSchema = {
     "details":{
       "type":"array"
     },
-    "reamarks":{
+    "remarks":{
+      "type":"string"
+    },
+    "chargePlan":{
       "type":"string"
     }
   },

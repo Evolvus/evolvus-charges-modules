@@ -96,6 +96,9 @@ var chargesBillingSchema = new mongoose.Schema({
   },
   remarks: {
     type: String
+  },
+  chargePlan:{
+    type:String
   }
 
 });
