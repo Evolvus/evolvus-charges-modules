@@ -252,6 +252,7 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         });
         billingObject.corporateName = corporate.corporateName;
         billingObject.utilityCode = corporate.utilityCode;
+        billingObject.chargePlan=corporate.chargePlan.name;
         billingObject.createdBy = billingObject.updatedBy = createdBy;
         billingObject.createdDateAndTime = billingObject.billDate = billingObject.updatedDateAndTime = new Date().toISOString();
         billingObject.billPeriod = billPeriod;
