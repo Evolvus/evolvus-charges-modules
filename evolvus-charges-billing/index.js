@@ -13,9 +13,11 @@ var modelSchema = model.schema;
 const sweClient = require("@evolvus/evolvus-swe-client");
 const generatePdf = require("@evolvus/evolvus-charges-generate-pdf");
 const sendEmail = require("@evolvus/evolvus-charges-email-service");
+var corporateLinkage=require("@evolvus/evolvus-charges-corporate-linkage");
 var moment = require("moment");
 var fs = require("fs");
 let toWords = require('to-words');
+var shortid=require("shortid");
 
 audit.application = "CHARGES";
 audit.source = "Billing";
@@ -229,10 +231,10 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
             if (key == chargeCode.transactionType.code) {
               object.name = chargeCode.transactionType.name;
               object.rate = chargeCode.amount;
-              object.number = value;
-              object.plan = corporate.chargePlan.name;
+              object.transactions = value;
               sum = sum + (chargeCode.amount * Number(value));
-              object.sum = chargeCode.amount * Number(value);
+              object.actualAmount = object.finalAmount = chargeCode.amount * Number(value);
+              object.discount = object.actualAmount - object.finalAmount;
               details.push(object);
             }
           });
@@ -252,21 +254,23 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         });
         billingObject.corporateName = corporate.corporateName;
         billingObject.utilityCode = corporate.utilityCode;
-        billingObject.chargePlan=corporate.chargePlan.name;
+        billingObject.chargePlan = corporate.chargePlan.name;
         billingObject.createdBy = billingObject.updatedBy = createdBy;
         billingObject.createdDateAndTime = billingObject.billDate = billingObject.updatedDateAndTime = new Date().toISOString();
         billingObject.billPeriod = billPeriod;
         billingObject.actualGSTAmount = billingObject.finalGSTAmount = sum * Number(glAccount[0].GSTRate / 100).toFixed(2);
         billingObject.actualTotalAmount = billingObject.finalTotalAmount = billingObject.actualChargesAmount + billingObject.actualGSTAmount;
         collection.save(billingObject, ipAddress, createdBy).then((res) => {
-          generatePDFAndSendMail(res, corporate, glAccount[0].GSTRate).then(response => {
-            debug(response);
-            resolve(resolve);
+          generatePDF(res, corporate, glAccount[0].GSTRate).then(response => {
+            sendMail(res, corporate, response.filename, "I").then((email) => {
+              resolve(email);
+            }).catch(e => {
+              resolve(e);
+            });
           }).catch(e => {
             debug(e);
             resolve(e);
           })
-
         }).catch(e => {
           reject(e)
         })
@@ -294,26 +298,67 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
       audit.eventDateTime = Date.now();
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
+      let emailFormat = "F";
+      let GST = 0;
+      let flag = "2";
       if (update.processingStatus === "AUTHORIZED") {
         update.billStatus = "CBS_POSTING_SUCCESSFUL";
+        emailFormat = "S";
+        flag = "1";
       } else if (update.processingStatus === "FAILURE") {
         update.billStatus = "CBS_POSTING_FAILURE";
+        var date = new Date();          // Get current Date
+        date.setDate(date.getDate() + 3);
+        update.reattemptDate = date.toISOString();
+        emailFormat = "F";
+        flag = "0";
       } else {
         update.billStatus = "REJECTED";
-      }
-      var filterBill = {
-        "utilityCode": utilityCode,
-        "billNumber": billNumber
       };
-      debug(`calling db update method, filterBill: ${JSON.stringify(filterBill)},update: ${JSON.stringify(update)}`);
-      collection.update(filterBill, update).then((resp) => {
-        debug("updated successfully", resp);
-        resolve(resp);
-      }).catch((error) => {
-        var reference = shortid.generate();
-        debug(`update promise failed due to ${error}, and reference Id :${reference}`);
-        reject(error);
+      Promise.all([collection.findOne({
+        "billNumber": billNumber
+      }), corporateLinkage.find({ "utilityCode": utilityCode }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
+        if (result[0]) {
+          GST = result[2][0].GSTRate;
+          debug(`calling db update method, filterBill:${billNumber} ,update: ${JSON.stringify(update)}`);
+          collection.update({
+            "billNumber": billNumber
+          }, update).then((resp) => {
+            debug("updated successfully", resp);
+            if (flag === "1") {
+              generatePDF(result[0], result[1][0], GST).then((pdf) => {
+                sendMail(result[0], result[1][0], pdf.filename, emailFormat).then((email) => {
+                  resolve(email);
+                }).catch(e => {
+                  resolve(e);
+                });
+              }).catch(e => {
+                resolve(e)
+              });
+            } else if (flag === "0") {
+              sendMail(result[0], result[1][0], null, emailFormat).then((email) => {
+                resolve(email);
+              }).catch(e => {
+                resolve(e);
+              });
+            } else {
+              debug("Record rejected.");
+              resolve(resp);
+            }
+          }).catch((error) => {
+            var reference = shortid.generate();
+            debug(`update promise failed due to ${error}, and reference Id :${reference}`);
+            reject(error);
+          });
+        } else {
+          debug(`Bill ${billNumber} not found`);
+          reject(`Bill ${billNumber} not found`);
+        }
+      }).catch((e) => {
+        debug(`Finding bill promise failed`, e);
+        reject(e);
       });
+
     } catch (e) {
       var reference = shortid.generate();
       audit.name = "BILL_EXCEPTION_ON_WORKFLOWUPDATE";
@@ -330,8 +375,8 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
   });
 };
 
-function generatePDFAndSendMail(billObject, corporateDetails, GSTRate) {
-  return new Promise((resolve, reject) => {
+function generatePDF(billObject, corporateDetails, GSTRate) {
+  return new Promise((resolve, reject) => {    
     billObject = billObject.toObject();
     var date = new Date();
     var toDate = moment(date).format("DD-MM-YYYY");
@@ -341,33 +386,45 @@ function generatePDFAndSendMail(billObject, corporateDetails, GSTRate) {
     billObject.toDate = toDate;
     billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
     if (billObject.finalTotalAmount > 0) {
-      billObject.toWords = toWords(billObject.finalTotalAmount, { currency: true });
+      billObject.toWords = toWords(Number(billObject.finalTotalAmount).toFixed(2), { currency: true });
     } else {
       billObject.toWords = "Zero";
-    } 
+    }
     generatePdf.generatePdf(billObject, corporateDetails, GSTRate).then((pdf) => {
       debug("PDF generated successfully.");
-      var emailDetails = {
-        utilityCode: corporateDetails.utilityCode,
-        billPeriod: billObject.billPeriod,
-        billDate: billObject.date,
-        finalTotalAmount: billObject.finalTotalAmount,
-        billNumber: billObject.billNumber
-      };
-      sendEmail.sendMail(corporateDetails.emailId, emailDetails, pdf.filename).then((email) => {
-        debug("Email sent.");
-        fs.unlink(pdf.filename, (err, res) => {
-          if (err) debug(`Failed to delete PDF ${pdf.filename}`);
-          else debug(`PDF deleted successfully from ${pdf.filename}`);
-          resolve(email);
-        });
-      }).catch(e => {
-        debug(e);
-        resolve(e);
-      })
+      resolve(pdf);
     }).catch(e => {
       debug(e);
       resolve(e)
+    });
+  })
+
+}
+
+function sendMail(billObject, corporateDetails, filename, emailFormat) {
+  return new Promise((resolve, reject) => {
+    billObject = billObject.toObject();
+    billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
+    var emailDetails = {
+      utilityCode: corporateDetails.utilityCode,
+      billPeriod: billObject.billPeriod,
+      billDate: billObject.date,
+      finalTotalAmount: billObject.finalTotalAmount,
+      billNumber: billObject.billNumber
+    };
+    sendEmail.sendMail(corporateDetails.emailId, emailDetails, filename, emailFormat).then((email) => {
+      debug("Email sent.");
+      if (filename) {
+        fs.unlink(filename, (err, res) => {
+          if (err) debug(`Failed to delete PDF ${filename}`);
+          else debug(`PDF deleted successfully from ${filename}`);
+        });
+      }
+      resolve(email);
+
+    }).catch(e => {
+      debug(e);
+      resolve(e);
     });
   })
 
