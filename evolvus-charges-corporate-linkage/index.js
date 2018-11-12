@@ -77,63 +77,6 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
   });
 };
 
-// module.exports.update = (id, updateObject, ipAddress, createdBy) => {
-//   return new Promise((resolve, reject) => {
-//     try {
-//       if (updateObject == null) {
-//         throw new Error("IllegalArgumentException: Input value is null or undefined");
-//       }
-//       audit.name = "CHARGES_GL_PARAMETERS_UPDATE INITIALIZED";
-//       audit.ipAddress = ipAddress;
-//       audit.createdBy = createdBy;
-//       audit.keyDataAsJSON = JSON.stringify(updateObject);
-//       audit.details = `Charges gl paramaters update is initiated`;
-//       audit.eventDateTime = Date.now();
-//       audit.status = "SUCCESS";
-//       docketClient.postToDocket(audit);
-//       var result;
-//       var errors = [];
-//       _.mapKeys(updateObject, function (value, key) {
-//         if (modelSchema.properties[key] != null) {
-//           result = validate(value, modelSchema.properties[key]);
-//           if (result.errors.length != 0) {
-//             result.errors[0].property = key;
-//             errors.push(result.errors);
-//           }
-//         }
-//       });
-//       debug("Validation status: ", JSON.stringify(result));
-//       if (errors.length != 0) {
-//         reject(errors[0][0]);
-//       } else {
-//         collection.update({ "_id": id }, updateObject).then((result) => {
-//           if (result.nModified == 1) {
-//             debug(`updated successfully ${result}`);
-//             resolve(result);
-//           } else {
-//             debug(`Not able to update. ${result}`);
-//             reject("Not able to update.Contact Administrator");
-//           }
-//         }).catch((e) => {
-//           debug(`failed to save with an error: ${e}`);
-//           reject(e);
-//         });
-//       }
-//     } catch (e) {
-//       audit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_UPDATE";
-//       audit.ipAddress = ipAddress;
-//       audit.createdBy = createdBy;
-//       audit.keyDataAsJSON = JSON.stringify(update);
-//       audit.details = `Charges gl paramaters UPDATE failed`;
-//       audit.eventDateTime = Date.now();
-//       audit.status = "FAILURE";
-//       docketClient.postToDocket(audit);
-//       debug(`caught exception ${e}`);
-//       reject(e);
-//     }
-//   });
-// };
-
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
@@ -179,5 +122,80 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
   });
 };
 
-
-
+module.exports.update = (code, updateObject, ipAddress, createdBy) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (updateObject == null) {
+        throw new Error("IllegalArgumentException: Input value is null or undefined");
+      }
+      audit.name = "CHARGES_CORPORATE-LINKAGE_UPDATE INITIALIZED";
+      audit.ipAddress = ipAddress;
+      audit.createdBy = createdBy;
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
+      audit.details = `Charges corporate linkage update is initiated`;
+      audit.eventDateTime = Date.now();
+      audit.status = "SUCCESS";
+      docketClient.postToDocket(audit);
+      var result;
+      var errors = [];
+      _.mapKeys(updateObject, function(value, key) {
+        if (modelSchema.properties[key] != null) {
+          result = validate(value, modelSchema.properties[key]);
+          if (result.errors.length != 0) {
+            result.errors[0].property = key;
+            errors.push(result.errors);
+          }
+        }
+      });
+      debug("Validation status: ", JSON.stringify(result));
+      if (errors.length != 0) {
+        reject(errors[0][0]);
+      } else {
+        let filter = {};
+        if (updateObject.chargePlan) {
+          filter = {
+            "_id": updateObject.chargePlan
+          };
+        }
+        Promise.all([chargePlan.find(filter, {}, 0, 1, ipAddress, createdBy), collection.find({
+          "utilityCode": code
+        }, {}, 0, 1)]).then((findResult) => {
+          if (_.isEmpty(findResult[0])) {
+            throw new Error(`Invalid chargePlan`);
+          } else if (_.isEmpty(findResult[1])) {
+            throw new Error(`UtilityCode ${code} not Found`);
+          } else {
+            collection.update({
+              "utilityCode": code
+            }, updateObject).then((result) => {
+              if (result.nModified == 1) {
+                debug(`updated successfully ${result}`);
+                resolve(result);
+              } else {
+                debug(`Not able to update. ${result}`);
+                reject("Not able to update.Contact Administrator");
+              }
+            }).catch((e) => {
+              debug(`failed to update with an error: ${e}`);
+              reject(e);
+            });
+          }
+        }).catch((e) => {
+          debug(`Failed in PromiseAll ${e}`);
+          reject(e);
+        });
+      }
+    } catch (e) {
+      audit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
+      audit.ipAddress = ipAddress;
+      audit.createdBy = createdBy;
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
+      audit.details = `Charges corpporate linkage UPDATE failed`;
+      audit.eventDateTime = Date.now();
+      audit.status = "FAILURE";
+      docketClient.postToDocket(audit);
+      debug(`caught exception ${e}`);
+      reject(e);
+    }
+  });
+};
