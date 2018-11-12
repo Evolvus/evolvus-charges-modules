@@ -216,8 +216,10 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
             collection.find({
               "name": code
             }, {}, 0, 1).then((findResult) => {
-              if (_.isEmpty(findResult)) {
+              if (_.isEmpty(findResult[0])) {
                 throw new Error("Invalid ChargeCode");
+              } else if ((!_.isEmpty(findResult[0])) && (findResult[0].name != code)) {
+                throw new Error(`ChargeCode Name ${code} cannot be modified`);
               } else {
                 collection.update({
                   "name": code
