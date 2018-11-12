@@ -160,10 +160,12 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         Promise.all([chargePlan.find(filter, {}, 0, 1, ipAddress, createdBy), collection.find({
           "utilityCode": code
         }, {}, 0, 1)]).then((findResult) => {
-          if (_.isEmpty(findResult[0])) {
+          if (_.isEmpty(findResult[0][0])) {
             throw new Error(`Invalid chargePlan`);
-          } else if (_.isEmpty(findResult[1])) {
+          } else if (_.isEmpty(findResult[1][0])) {
             throw new Error(`UtilityCode ${code} not Found`);
+          } else if ((!_.isEmpty(findResult[1][0])) && (findResult[1][0].utilityCode != code)) {
+            throw new Error(`UtilityCode ${code} cannot be modified`);
           } else {
             collection.update({
               "utilityCode": code
