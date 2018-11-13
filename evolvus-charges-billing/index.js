@@ -18,6 +18,8 @@ var moment = require("moment");
 var fs = require("fs");
 let toWords = require('to-words');
 var shortid=require("shortid");
+var axios=require("axios");
+var ChargesServiceUrl= process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
 
 audit.application = "CHARGES";
 audit.source = "Billing";
@@ -374,6 +376,48 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
     }
   });
 };
+
+module.exports.reattempt = (bill, createdBy, ipAddress) => {
+  return new Promise((resolve, reject) => {
+    try {
+      axios.post(`${ChargesServiceUrl}/accountPosting`, {
+        billNumber: bill.billNumber
+      }, {
+          headers: {
+            "X-USER": createdBy,
+            "X-IP-HEADER": ipAddress
+          }
+        }).then((res) => {
+          let updateObject = {
+            "reattemptFlag": "YES",
+            "updatedBy": createdBy,
+            "updatedDateAndTime": new Date().toISOString()
+          }
+          if (res.data.data.statusFlg === "0") {
+            updateObject.processingStatus = "AUTHORIZED";
+          } else {
+            updateObject.processingStatus = "FAILURE";
+          }
+          collection.findOne({ billNumber: bill.billNumber }).then(billFound => {
+            module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
+              resolve(updated);
+            }).catch(e => {
+              resolve(e)
+            })
+          }).catch(e => {
+            reject(e)
+          });
+        }).catch(e => {
+          debug(e);
+          reject(e);
+        });
+    } catch (error) {
+
+      reject(error)
+    }
+  });
+
+}
 
 function generatePDF(billObject, corporateDetails, GSTRate) {
   return new Promise((resolve, reject) => {    
