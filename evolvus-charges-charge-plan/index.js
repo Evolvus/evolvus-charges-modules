@@ -169,7 +169,8 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
           if (_.isEmpty(findResult[0])) {
             throw new Error(`ChargePlan ${code.toUpperCase()}, not found `);
           }
-          if ((!_.isEmpty(findResult[0])) && (findResult[0].name != code.toUpperCase())) {
+          if ((!_.isEmpty(findResult[0])) && (findResult[0].name != code)) {
+
             throw new Error(`ChargePlan Name ${code} cannot be modified`);
           }
           collection.update({
@@ -183,7 +184,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
               reject("Not able to update.Contact Administrator");
             }
           }).catch((e) => {
-            debug(`failed to save with an error: ${e}`);
+            debug(`failed to update with an error: ${e}`);
             reject(e);
           });
         }).catch((e) => {

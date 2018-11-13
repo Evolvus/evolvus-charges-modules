@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-charge-code",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "ChargesChargeCode encapsulates ChargesChargeCode functionality across all Evolvus products",
   "main": "index.js",
   "scripts": {
