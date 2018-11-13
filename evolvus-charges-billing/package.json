@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-billing",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "@evolvus/evolvus-docket-client": "^1.0.3",
     "@evolvus/evolvus-mongo-dao": "^1.0.2",
     "@evolvus/evolvus-swe-client": "^1.0.2",
+    "axios": "^0.18.0",
     "debug": "^3.1.0",
     "jsonschema": "^1.2.4",
     "moment": "^2.22.2",
