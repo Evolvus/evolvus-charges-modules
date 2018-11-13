@@ -13,13 +13,13 @@ var modelSchema = model.schema;
 const sweClient = require("@evolvus/evolvus-swe-client");
 const generatePdf = require("@evolvus/evolvus-charges-generate-pdf");
 const sendEmail = require("@evolvus/evolvus-charges-email-service");
-var corporateLinkage=require("@evolvus/evolvus-charges-corporate-linkage");
+var corporateLinkage = require("@evolvus/evolvus-charges-corporate-linkage");
 var moment = require("moment");
 var fs = require("fs");
 let toWords = require('to-words');
-var shortid=require("shortid");
-var axios=require("axios");
-var ChargesServiceUrl= process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
+var shortid = require("shortid");
+var axios = require("axios");
+var ChargesServiceUrl = process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
 
 audit.application = "CHARGES";
 audit.source = "Billing";
@@ -420,17 +420,20 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
 }
 
 function generatePDF(billObject, corporateDetails, GSTRate) {
-  return new Promise((resolve, reject) => {    
+  return new Promise((resolve, reject) => {
     billObject = billObject.toObject();
-    var date = new Date();
-    var toDate = moment(date).format("DD-MM-YYYY");
-    date.setMonth(date.getMonth() - 1);
-    var fromDate = moment(date).format("DD-MM-YYYY");
+    var fromDate = moment().subtract(1,'month').startOf('month').format('DD-MM-YYYY');
+    var toDate=moment().subtract(1,'month').endOf('month').format('DD-MM-YYYY');
     billObject.fromDate = fromDate;
     billObject.toDate = toDate;
     billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
     if (billObject.finalTotalAmount > 0) {
-      billObject.toWords = toWords(Number(billObject.finalTotalAmount).toFixed(2), { currency: true });
+      if (Number(billObject.finalTotalAmount).toFixed(2) % 1 == 0) {
+        billObject.toWords = toWords(billObject.finalTotalAmount, { currency: true })
+      } else {
+        billObject.toWords = toWords(Number(billObject.finalTotalAmount).toFixed(2), { currency: true });
+      }
+
     } else {
       billObject.toWords = "Zero";
     }
