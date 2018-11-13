@@ -86,6 +86,13 @@ var chargesBillingSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  reattemptDate: {
+    type: Date
+  },
+  reattemptFlag: {
+    type: String,
+    default: "NO"
+  },
   wfInstanceId: {
     type: String,
     minlength: 3,
@@ -97,8 +104,8 @@ var chargesBillingSchema = new mongoose.Schema({
   remarks: {
     type: String
   },
-  chargePlan:{
-    type:String
+  chargePlan: {
+    type: String
   }
 
 });

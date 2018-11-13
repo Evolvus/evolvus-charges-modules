@@ -59,7 +59,8 @@ var chargesBillingSchema = {
     },
     "createdDateAndTime": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "filterable": true
     },
     "updatedBy": {
       "type": "string"
@@ -82,7 +83,17 @@ var chargesBillingSchema = {
     },
     "chargePlan":{
       "type":"string"
-    }
+    },
+    "reattemptDate": {
+      "type": "string",
+      "format": "date-time",
+      "filterable": true
+    },
+    "reattemptFlag":{
+      "type":"string",
+      "default":"NO",
+      "filterable": true
+    },
   },
   "required": ["corporateName", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
 };
