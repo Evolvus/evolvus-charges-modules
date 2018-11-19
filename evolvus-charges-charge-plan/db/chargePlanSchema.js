@@ -6,7 +6,7 @@ var chargePlanSchema = new mongoose.Schema({
     type: String,
     required: true,
     min: 2,
-    max: 50,
+    max: 20,
     unique: true,
     validate: {
       validator: function(v) {
@@ -19,6 +19,17 @@ var chargePlanSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'chargecode'
   }],
+  description: {
+    type: String,
+    min: 5,
+    max: 200,
+    validate: {
+      validator: function(v) {
+        return /^[A-Za-z']+( [A-Za-z']+)*$/.test(v);
+      },
+      message: "{PATH} can contain only alphanumeric and single space"
+    }
+  },
   createdBy: {
     type: String,
     required: true
