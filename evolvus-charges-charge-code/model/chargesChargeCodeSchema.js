@@ -6,75 +6,77 @@ module.exports.schema = {
   "title": "chargesChargeCodeModel",
   "type": "object",
   "properties": {
-    
+
     "name": {
       "type": "string",
       "minLength": 5,
-      "maxLength": 50,
-      "unique": "true"
+      "maxLength": 20,
+      "unique": "true",
+      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
     },
-    
+
     "type": {
       "type": "string",
-      "minLength":5,
+      "minLength": 5,
       "maxLength": 20
     },
-    
+
     "amount": {
       "type": "number",
       "minLength": 1,
       "maxLength": 10
     },
-    
+
     "description": {
       "type": "string",
       "minLength": 5,
-      "maxLength": 200
+      "maxLength": 200,
+      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
     },
-    
+
     "schemeType": {
-      "type": "string",     
+      "type": "string",
       "minLength": 2,
       "maxLength": 10
     },
-    
+
     "transactionType": {
-      "type": "string",      
+      "type": "string",
       "minLength": 5,
       "maxLength": 50
     },
-    
+
     "createdBy": {
-      "type": "string",    
+      "type": "string",
       "minLength": 5,
       "maxLength": 35
     },
-    
-    "createdDateAndTime": { 
+
+    "createdDateAndTime": {
       "type": "string",
       "format": "data-time",
     },
-    
+
     "updatedBy": {
       "type": "string",
       "minLength": 5,
       "maxLength": 35
     },
-    
-    "updatedDateAndTime": { 
+
+    "updatedDateAndTime": {
       "type": "string",
       "format": "data-time",
     },
-    
+
     "enabledFlag": {
       "enum": ["true", "false"],
       "default": "true"
     },
-    
+
     "deletedFlag": {
       "enum": ["true", "false"],
       "default": "false"
     }
   },
-  "required" : ["name","type", "transactionType", "schemeType", "description", "amount", "createdBy", "updatedBy", "createdDateAndTime", "updatedDateAndTime"]
+  "required": ["name", "type", "transactionType", "schemeType", "amount", "createdBy", "updatedBy", "createdDateAndTime", "updatedDateAndTime"]
 };
