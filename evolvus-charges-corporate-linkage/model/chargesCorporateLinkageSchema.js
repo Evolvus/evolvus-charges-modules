@@ -26,6 +26,7 @@ module.exports.schema = {
     },
     "emailId": {
       "type": "string",
+      "maxLength": 100,
       "format": "email"
     },
     "corporateAccount": {
