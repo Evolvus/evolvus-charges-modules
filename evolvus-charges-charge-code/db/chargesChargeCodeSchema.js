@@ -7,8 +7,14 @@ var chargesChargeCodeSchema = new mongoose.Schema({
     type: String,
     required: true,
     min: 5,
-    max: 50,
-    unique: true
+    max: 20,
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^[A-Za-z']+( [A-Za-z']+)*$/.test(v);
+      },
+      message: "{PATH} can contain only alphanumeric and single space"
+    }
   },
 
   type: {
@@ -27,9 +33,14 @@ var chargesChargeCodeSchema = new mongoose.Schema({
 
   description: {
     type: String,
-    required: true,
     min: 5,
-    max: 200
+    max: 200,
+    validate: {
+      validator: function(v) {
+        return /^[A-Za-z']+( [A-Za-z']+)*$/.test(v);
+      },
+      message: "{PATH} can contain only alphanumeric and single space"
+    }
   },
 
   schemeType: {
@@ -42,7 +53,7 @@ var chargesChargeCodeSchema = new mongoose.Schema({
   transactionType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'chargesTransactionType',
-    required:true
+    required: true
   },
 
   createdBy: {
@@ -86,9 +97,8 @@ var chargesChargeCodeSchema = new mongoose.Schema({
 chargesChargeCodeSchema.index({
   name: 1
 }, {
-    unique: true
-  });
+  unique: true
+});
 
 
 module.exports.schema = chargesChargeCodeSchema;
-
