@@ -49,11 +49,23 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
             reject(res.errors);
           } else {
             corporateLinkageObject.chargePlan = result[0]._id;
-            collection.save(corporateLinkageObject).then((result) => {
-              debug(`saved successfully ${result}`);
-              resolve(result);
+            let filter = {
+              "utilityCode": corporateLinkageObject.utilityCode
+            };
+            collection.find(filter, {}, 0, 1).then((findResult) => {
+              if (!_.isEmpty(findResult)) {
+                throw new Error(`UtilityCode ${corporateLinkageObject.utilityCode} is already exists`);
+              } else {
+                collection.save(corporateLinkageObject).then((result) => {
+                  debug(`saved successfully ${result}`);
+                  resolve(result);
+                }).catch((e) => {
+                  debug(`failed to save with an error: ${e}`);
+                  reject(e);
+                });
+              }
             }).catch((e) => {
-              debug(`failed to save with an error: ${e}`);
+              debug(`Failed to find UtilityCode with an error: ${e}`);
               reject(e);
             });
           }
