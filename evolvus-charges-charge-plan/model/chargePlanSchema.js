@@ -9,7 +9,7 @@ module.exports.schema = {
     "name": {
       "type": "string",
       "minLength": 2,
-      "maxLength": 50,
+      "maxLength": 20,
       "unique": "true",
       "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
     },
@@ -86,6 +86,12 @@ module.exports.schema = {
         }
       },
       "required": ["name", "type", "transactionType", "schemeType", "description", "amount", "createdBy", "updatedBy", "createdDateAndTime", "updatedDateAndTime"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
     },
     "createdBy": {
       "type": "string"
