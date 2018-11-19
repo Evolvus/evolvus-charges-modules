@@ -9,9 +9,10 @@ var chargesGlParametersSchema = new mongoose.Schema({
     min: 2,
     max: 10
   },
-  GSTRate:{
+  GSTRate: {
     type: Number,
-    required:true
+    max: 5,
+    required: true
   },
   chargesAccount: {
     type: String,
@@ -66,12 +67,12 @@ var chargesGlParametersSchema = new mongoose.Schema({
     required: true
   },
   enabledFlag: {
-    type:String,
+    type: String,
     enum: ["true", "false"],
     default: "true"
   },
   deletedFlag: {
-    type:String,
+    type: String,
     enum: ["true", "false"],
     default: "false"
   }
