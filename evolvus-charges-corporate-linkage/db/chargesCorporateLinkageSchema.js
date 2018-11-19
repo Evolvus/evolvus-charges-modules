@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 var chargesCorporateLinkageSchema = new mongoose.Schema({
-  corporateName:{
-    type:String,
-    required:true
+  corporateName: {
+    type: String,
+    required: true
   },
   utilityCode: {
     type: String,
     required: true
   },
-  tenantId:{
-    type:String,
-    required:true
+  tenantId: {
+    type: String,
+    required: true
   },
   chargePlan: {
     type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +24,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     max: 200,
     required: true,
     validate: {
-      validator: function (v) {
+      validator: function(v) {
         return /^[A-Za-z']+( [A-Za-z']+)*$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric and single space"
@@ -32,6 +32,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
   },
   emailId: {
     type: String,
+    max: 100,
     required: true
   },
   corporateAccount: {
@@ -40,7 +41,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     min: 10,
     max: 20,
     validate: {
-      validator: function (v) {
+      validator: function(v) {
         return /^[A-Za-z0-9]+$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric."
@@ -52,7 +53,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     max: 15,
     required: true,
     validate: {
-      validator: function (v) {
+      validator: function(v) {
         return /^[A-Za-z0-9]+$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric."
