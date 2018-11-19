@@ -12,7 +12,8 @@ module.exports.schema = {
       "maxLength": 10
     },
     "GSTRate": {
-      "type": "number"
+      "type": "number",
+      "maxLength": 5
     },
     "chargesAccount": {
       "type": "string",
@@ -59,5 +60,5 @@ module.exports.schema = {
       "default": "false"
     }
   },
-  "required": ["schemeType","GSTRate","chargesAccount","GSTAccount","chargesAccountNarration","GSTAccountNarration","createdBy","createdDateAndTime","updatedBy","updatedDateAndTime"]
+  "required": ["schemeType", "GSTRate", "chargesAccount", "GSTAccount", "chargesAccountNarration", "GSTAccountNarration", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
 };
