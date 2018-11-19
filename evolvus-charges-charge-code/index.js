@@ -53,16 +53,28 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
               throw new Error("Invalid Transaction Type");
             } else {
               chargesChargeCodeObject.transactionType = searchResult[1][0]._id;
-              collection
-                .save(chargesChargeCodeObject)
-                .then(result => {
-                  debug(`saved successfully ${result}`);
-                  resolve(result);
-                })
-                .catch(e => {
-                  debug(`failed to save with an error: ${e}`);
-                  reject(e);
-                });
+              let filter = {
+                "name": chargesChargeCodeObject.name
+              };
+              collection.find(filter, {}, 0, 1).then((findResult) => {
+                if (!_.isEmpty(findResult)) {
+                  throw new Error(`ChargeCode ${chargesChargeCodeObject.name} is already exists`);
+                } else {
+                  collection
+                    .save(chargesChargeCodeObject)
+                    .then(result => {
+                      debug(`saved successfully ${result}`);
+                      resolve(result);
+                    })
+                    .catch(e => {
+                      debug(`failed to save with an error: ${e}`);
+                      reject(e);
+                    });
+                }
+              }).catch((e) => {
+                debug(`Failed to find With an error ${e}`);
+                reject(e);
+              });
             }
           })
           .catch(error => {
