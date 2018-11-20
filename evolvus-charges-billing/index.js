@@ -12,7 +12,7 @@ const collection = new Dao("billing", dbSchema);
 var modelSchema = model.schema;
 const sweClient = require("@evolvus/evolvus-swe-client");
 const generatePdf = require("@evolvus/evolvus-charges-generate-pdf");
-const sendEmail = require("@evolvus/evolvus-charges-email-service");
+const generateXML = require("@evolvus/evolvus-charges-generate-xml");
 var corporateLinkage = require("@evolvus/evolvus-charges-corporate-linkage");
 var moment = require("moment");
 var fs = require("fs");
@@ -264,20 +264,30 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         billingObject.actualTotalAmount = billingObject.finalTotalAmount = billingObject.actualChargesAmount + billingObject.actualGSTAmount;
         collection.save(billingObject, ipAddress, createdBy).then((res) => {
           generatePDF(res, corporate, glAccount[0].GSTRate).then(response => {
-            sendMail(res, corporate, response.filename, "I").then((email) => {
-              resolve(email);
-            }).catch(e => {
-              resolve(e);
+            var xmlObject = {
+              utilityCode: corporate.utilityCode,
+              billPeriod: billPeriod,
+              billNumber: billingObject.billNumber,
+              finalTotalAmount: billingObject.finalTotalAmount,
+              billDate: billingObject.billDate
+            };
+            generateXML.generateXml(corporate.emailId, "I", response.filename, xmlObject).then((xml) => {
+              debug(xml);
+              resolve(xml);
+            }).catch((e) => {
+              debug(e);
             });
           }).catch(e => {
             debug(e);
             resolve(e);
           })
         }).catch(e => {
+          debug(e);
           reject(e)
         })
       })
     } catch (error) {
+      debug(error);
       reject(error);
     }
 
@@ -329,18 +339,37 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
             debug("updated successfully", resp);
             if (flag === "1") {
               generatePDF(result[0], result[1][0], GST).then((pdf) => {
-                sendMail(result[0], result[1][0], pdf.filename, emailFormat).then((email) => {
-                  resolve(email);
-                }).catch(e => {
+                var xmlObject = {
+                  utilityCode: utilityCode,
+                  billPeriod: result[0].billPeriod,
+                  billNumber: billNumber,
+                  finalTotalAmount: result[0].finalTotalAmount,
+                  billDate: result[0].billDate
+                };
+                generateXML.generateXml(result[1][0].emailId, emailFormat, pdf.filename, xmlObject).then((xml) => {
+                  debug(xml);
+                  resolve(xml);
+                }).catch((e) => {
+                  debug(e);
                   resolve(e);
                 });
               }).catch(e => {
+                debug(e)
                 resolve(e)
               });
             } else if (flag === "0") {
-              sendMail(result[0], result[1][0], null, emailFormat).then((email) => {
-                resolve(email);
-              }).catch(e => {
+              var xmlObject = {
+                utilityCode: utilityCode,
+                billPeriod: result[0].billPeriod,
+                billNumber: billNumber,
+                finalTotalAmount: result[0].finalTotalAmount,
+                billDate: result[0].billDate
+              };
+              generateXML.generateXml(result[1][0].emailId, emailFormat, null, xmlObject).then((xml) => {
+                debug(xml);
+                resolve(xml);
+              }).catch((e) => {
+                debug(e);
                 resolve(e);
               });
             } else {
@@ -422,8 +451,8 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
 function generatePDF(billObject, corporateDetails, GSTRate) {
   return new Promise((resolve, reject) => {
     billObject = billObject.toObject();
-    var fromDate = moment().subtract(1,'month').startOf('month').format('DD-MM-YYYY');
-    var toDate=moment().subtract(1,'month').endOf('month').format('DD-MM-YYYY');
+    var fromDate = moment().subtract(1, 'month').startOf('month').format('DD-MM-YYYY');
+    var toDate = moment().subtract(1, 'month').endOf('month').format('DD-MM-YYYY');
     billObject.fromDate = fromDate;
     billObject.toDate = toDate;
     billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
@@ -433,7 +462,6 @@ function generatePDF(billObject, corporateDetails, GSTRate) {
       } else {
         billObject.toWords = toWords(Number(billObject.finalTotalAmount).toFixed(2), { currency: true });
       }
-
     } else {
       billObject.toWords = "Zero";
     }
@@ -444,36 +472,7 @@ function generatePDF(billObject, corporateDetails, GSTRate) {
       debug(e);
       resolve(e)
     });
-  })
-
-}
-
-function sendMail(billObject, corporateDetails, filename, emailFormat) {
-  return new Promise((resolve, reject) => {
-    billObject = billObject.toObject();
-    billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
-    var emailDetails = {
-      utilityCode: corporateDetails.utilityCode,
-      billPeriod: billObject.billPeriod,
-      billDate: billObject.date,
-      finalTotalAmount: billObject.finalTotalAmount,
-      billNumber: billObject.billNumber
-    };
-    sendEmail.sendMail(corporateDetails.emailId, emailDetails, filename, emailFormat).then((email) => {
-      debug("Email sent.");
-      if (filename) {
-        fs.unlink(filename, (err, res) => {
-          if (err) debug(`Failed to delete PDF ${filename}`);
-          else debug(`PDF deleted successfully from ${filename}`);
-        });
-      }
-      resolve(email);
-
-    }).catch(e => {
-      debug(e);
-      resolve(e);
-    });
-  })
+  });
 
 }
 
