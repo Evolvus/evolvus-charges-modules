@@ -113,7 +113,7 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
             }, updateObject).then((result) => {
               debug(`Bill updated successfully ${JSON.stringify(result)}`);
               var sweEventObject = {
-                "tenantId": billObject.utilityCode,
+                "tenantId": billObject.tenantId,
                 "wfEntity": "BILL",
                 "wfEntityAction": "UPDATE",
                 "createdBy": createdBy,
@@ -255,6 +255,7 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
           special: false
         });
         billingObject.corporateName = corporate.corporateName;
+        billingObject.tenantId=corporate.tenantId;
         billingObject.utilityCode = corporate.utilityCode;
         billingObject.chargePlan = corporate.chargePlan.name;
         billingObject.createdBy = billingObject.updatedBy = createdBy;
