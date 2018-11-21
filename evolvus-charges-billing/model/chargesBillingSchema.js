@@ -14,6 +14,10 @@ var chargesBillingSchema = {
       "type": "string",
       "filterable": "true"
     },
+    "tenantId":{
+      "type":"string",
+      "filterable":"true"
+    },
     "billNumber": {
       "type": "string",
       "filterable": "true"
@@ -95,7 +99,7 @@ var chargesBillingSchema = {
       "filterable": true
     },
   },
-  "required": ["corporateName", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
+  "required": ["corporateName","tenantId", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
 };
 
 module.exports.schema = chargesBillingSchema;

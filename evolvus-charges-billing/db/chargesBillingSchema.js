@@ -8,6 +8,10 @@ var chargesBillingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  tenantId: {
+    type: String,
+    required: true
+  },
   utilityCode: {
     type: String,
     required: true
