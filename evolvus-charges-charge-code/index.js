@@ -54,12 +54,13 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
             } else {
               chargesChargeCodeObject.transactionType = searchResult[1][0]._id;
               let filter = {
-                "name": chargesChargeCodeObject.name
+                "name": chargesChargeCodeObject.name.toUpperCase()
               };
               collection.find(filter, {}, 0, 1).then((findResult) => {
                 if (!_.isEmpty(findResult)) {
-                  throw new Error(`ChargeCode ${chargesChargeCodeObject.name} is already exists`);
+                  throw new Error(`ChargeCode ${chargesChargeCodeObject.name.toUpperCase()} is already exists`);
                 } else {
+                  chargesChargeCodeObject.name = chargesChargeCodeObject.name.toUpperCase();
                   collection
                     .save(chargesChargeCodeObject)
                     .then(result => {
