@@ -37,7 +37,6 @@ module.exports.schema = {
 
         "description": {
           "type": "string",
-          "minLength": "5",
           "maxLength": "200"
         },
 
@@ -89,7 +88,6 @@ module.exports.schema = {
     },
     "description": {
       "type": "string",
-      "minLength": 5,
       "maxLength": 200,
       "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
     },
