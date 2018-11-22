@@ -21,7 +21,6 @@ var chargePlanSchema = new mongoose.Schema({
   }],
   description: {
     type: String,
-    min: 5,
     max: 200,
     validate: {
       validator: function(v) {
