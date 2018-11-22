@@ -36,7 +36,7 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
       audit.status = "SUCCESS";
       docketClient.postToDocket(audit);
       let filter = {
-        "name": corporateLinkageObject.chargePlan
+        "name": corporateLinkageObject.chargePlan.toUpperCase()
       };
       chargePlan.find(filter, {}, 0, 1, ipAddress, createdBy).then((result) => {
         if (_.isEmpty(result)) {
@@ -50,12 +50,13 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
           } else {
             corporateLinkageObject.chargePlan = result[0]._id;
             let filter = {
-              "utilityCode": corporateLinkageObject.utilityCode
+              "utilityCode": corporateLinkageObject.utilityCode.toUpperCase()
             };
             collection.find(filter, {}, 0, 1).then((findResult) => {
               if (!_.isEmpty(findResult)) {
-                throw new Error(`UtilityCode ${corporateLinkageObject.utilityCode} is already exists`);
+                throw new Error(`UtilityCode ${corporateLinkageObject.utilityCode.toUpperCase()} is already exists`);
               } else {
+                corporateLinkageObject.utilityCode = corporateLinkageObject.utilityCode.toUpperCase();
                 collection.save(corporateLinkageObject).then((result) => {
                   debug(`saved successfully ${result}`);
                   resolve(result);
