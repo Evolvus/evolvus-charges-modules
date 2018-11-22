@@ -57,11 +57,12 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
           }
 
           collection.find({
-            "name": chargePlanObject.name
+            "name": chargePlanObject.name.toUpperCase()
           }, {}, 0, 1).then((result) => {
             if (!_.isEmpty(result[0])) {
-              throw new Error(`Charge Plan ${chargePlanObject.name} already exists`);
+              throw new Error(`Charge Plan ${chargePlanObject.name.toUpperCase()} already exists`);
             }
+            chargePlanObject.name = chargePlanObject.name.toUpperCase();
             collection.save(chargePlanObject).then((result) => {
               debug(`saved successfully ${result}`);
               resolve(result);
