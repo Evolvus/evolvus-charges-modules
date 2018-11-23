@@ -255,7 +255,7 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
           special: false
         });
         billingObject.corporateName = corporate.corporateName;
-        billingObject.tenantId=corporate.tenantId;
+        billingObject.tenantId = corporate.tenantId;
         billingObject.utilityCode = corporate.utilityCode;
         billingObject.chargePlan = corporate.chargePlan.name;
         billingObject.createdBy = billingObject.updatedBy = createdBy;
@@ -328,6 +328,7 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
       } else {
         update.billStatus = "REJECTED";
       };
+      update.reattemptedStatus = update.billStatus;
       Promise.all([collection.findOne({
         "billNumber": billNumber
       }), corporateLinkage.find({ "utilityCode": utilityCode }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
@@ -421,7 +422,8 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
           let updateObject = {
             "reattemptFlag": "YES",
             "updatedBy": createdBy,
-            "updatedDateAndTime": new Date().toISOString()
+            "updatedDateAndTime": new Date().toISOString(),
+            "reattemptedDateAndTime": new Date().toISOString()
           }
           if (res.data.data.statusFlg === "0") {
             updateObject.processingStatus = "AUTHORIZED";
