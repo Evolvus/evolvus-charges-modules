@@ -97,6 +97,16 @@ var chargesBillingSchema = new mongoose.Schema({
     type: String,
     default: "NO"
   },
+  reattemptedDateAndTime: {
+    type: Date
+  },
+  reattemptedStatus: {
+    type: String
+  },
+  manualStatusChangeFlag: {
+    type: String,
+    default: "NO"
+  },
   wfInstanceId: {
     type: String,
     minlength: 3,
