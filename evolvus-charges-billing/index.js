@@ -365,8 +365,9 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
                 billPeriod: result[0].billPeriod,
                 billNumber: billNumber,
                 finalTotalAmount: result[0].finalTotalAmount,
-                billDate: result[0].billDate
-              };
+                billDate: result[0].billDate,
+                failureReason: result[0].postingFailureReason
+              };              
               generateXML.generateXml(result[1][0].emailId, emailFormat, null, xmlObject).then((xml) => {
                 debug(xml);
                 resolve(xml);
@@ -450,6 +451,73 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
   });
 
 }
+
+module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, createdBy) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (billNumber == null || updateObject == null) {
+        throw new Error("IllegalArgumentException: BillNumber or Input value is null or undefined");
+      }
+      audit.name = "CHARGES_BILLING_UPDATE_WITHOUT_WORKFLOW INITIALIZED";
+      audit.ipAddress = ipAddress;
+      audit.createdBy = createdBy;
+      audit.keyDataAsJSON = JSON.stringify(updateObject);
+      audit.details = `Charges billing update is initiated`;
+      audit.eventDateTime = Date.now();
+      audit.status = "SUCCESS";
+      docketClient.postToDocket(audit);
+      var result;
+      var errors = [];
+      _.mapKeys(updateObject, function (value, key) {
+        if (modelSchema.properties[key] != null) {
+          result = validate(value, modelSchema.properties[key]);
+          if (result.errors.length != 0) {
+            result.errors[0].property = key;
+            errors.push(result.errors);
+          }
+        }
+      });
+      debug("Validation status: ", JSON.stringify(result));
+      if (errors.length != 0) {
+        reject(errors[0][0]);
+      } else {
+        collection.findOne({
+          "billNumber": billNumber
+        }).then((billObject) => {
+          if (billObject) {
+            collection.update({
+              "billNumber": billNumber
+            }, updateObject).then((result) => {
+              debug(`Bill updated successfully without workflow ${JSON.stringify(result)}`);
+              resolve(result);
+            }).catch((e) => {
+              debug(`Bill update promise failed: ${e}`);
+              reject(e);
+            });
+          } else {
+            debug(`Bill ${billNumber} not found`);
+            reject(`Bill ${billNumber} not found`);
+          }
+        }).catch((e) => {
+          debug(`Finding bill promise failed`, e);
+          reject(e);
+        });
+      }
+    } catch (e) {
+      audit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
+      audit.ipAddress = ipAddress;
+      audit.createdBy = createdBy;
+      audit.keyDataAsJSON = JSON.stringify(update);
+      audit.details = `Charges billing UPDATE failed`;
+      audit.eventDateTime = Date.now();
+      audit.status = "FAILURE";
+      docketClient.postToDocket(audit);
+      debug(`caught exception ${e}`);
+      reject(e);
+    }
+  });
+};
+
 
 function generatePDF(billObject, corporateDetails, GSTRate) {
   return new Promise((resolve, reject) => {
