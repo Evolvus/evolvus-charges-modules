@@ -14,9 +14,9 @@ var chargesBillingSchema = {
       "type": "string",
       "filterable": "true"
     },
-    "tenantId":{
-      "type":"string",
-      "filterable":"true"
+    "tenantId": {
+      "type": "string",
+      "filterable": "true"
     },
     "billNumber": {
       "type": "string",
@@ -79,27 +79,34 @@ var chargesBillingSchema = {
       "filterable": true,
       "maxLength": 20
     },
-    "details":{
-      "type":"array"
+    "details": {
+      "type": "array"
     },
-    "remarks":{
-      "type":"string"
+    "remarks": {
+      "type": "string"
     },
-    "chargePlan":{
-      "type":"string"
+    "chargePlan": {
+      "type": "string"
     },
     "reattemptDate": {
       "type": "string",
       "format": "date-time",
       "filterable": true
     },
-    "reattemptFlag":{
-      "type":"string",
-      "default":"NO",
+    "reattemptFlag": {
+      "type": "string",
+      "default": "NO",
       "filterable": true
     },
+    "manualStatusChangeFlag": {
+      "type": "string",
+      "default": "NO"
+    },
+    "postingFailureReason": {
+      "type": "string"
+    }
   },
-  "required": ["corporateName","tenantId", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
+  "required": ["corporateName", "tenantId", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
 };
 
 module.exports.schema = chargesBillingSchema;

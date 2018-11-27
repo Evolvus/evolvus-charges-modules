@@ -120,6 +120,9 @@ var chargesBillingSchema = new mongoose.Schema({
   },
   chargePlan: {
     type: String
+  },
+  postingFailureReason: {
+    type: String
   }
 
 });
