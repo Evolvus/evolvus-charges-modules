@@ -367,7 +367,7 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
                 finalTotalAmount: result[0].finalTotalAmount,
                 billDate: result[0].billDate,
                 failureReason: result[0].postingFailureReason
-              };              
+              };
               generateXML.generateXml(result[1][0].emailId, emailFormat, null, xmlObject).then((xml) => {
                 debug(xml);
                 resolve(xml);
@@ -432,9 +432,15 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
             updateObject.processingStatus = "FAILURE";
           }
           collection.findOne({ billNumber: bill.billNumber }).then(billFound => {
-            module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
-              resolve(updated);
+            module.exports.updateWithoutWorkflow(bill.billNumber, { "postingFailureReason": res.data.data.errorDesc }, ipAddress, createdBy).then(() => {
+              module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
+                resolve(updated);
+              }).catch(e => {
+                debug(e);
+                resolve(e)
+              });
             }).catch(e => {
+              debug(e);
               resolve(e)
             })
           }).catch(e => {
@@ -445,7 +451,6 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
           reject(e);
         });
     } catch (error) {
-
       reject(error)
     }
   });
