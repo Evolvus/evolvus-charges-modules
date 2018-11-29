@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-gl-parameters",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "ChargesGlParameters encapsulates ChargesGlParameters functionality across all Evolvus products",
   "main": "index.js",
   "scripts": {
