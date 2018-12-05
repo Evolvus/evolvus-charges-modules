@@ -11,7 +11,7 @@ var chargesGlParametersSchema = new mongoose.Schema({
   },
   GSTRate: {
     type: Number,
-    max: 5,
+    max: 100,
     required: true
   },
   chargesAccount: {

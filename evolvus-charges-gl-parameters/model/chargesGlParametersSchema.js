@@ -13,7 +13,7 @@ module.exports.schema = {
     },
     "GSTRate": {
       "type": "number",
-      "maxLength": 5
+      "maximum": 100
     },
     "chargesAccount": {
       "type": "string",
