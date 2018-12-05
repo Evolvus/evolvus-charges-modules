@@ -11,7 +11,7 @@ var chargesChargeCodeSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: function(v) {
-        return /^[A-Za-z']+( [A-Za-z']+)*$/.test(v);
+        return /^[A-Za-z0-9']+( [A-Za-z0-9']+)*$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric and single space"
     }
