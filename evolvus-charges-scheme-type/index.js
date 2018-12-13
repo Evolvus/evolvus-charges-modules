@@ -5,15 +5,15 @@ const dbSchema = require("./db/chargesSchemeTypeSchema").schema;
 const validate = require("jsonschema")
   .validate;
 const docketClient = require("@evolvus/evolvus-docket-client");
-const audit = docketClient.audit;
-
+const schemeTypeAudit = docketClient.audit;
+const name=process.env.APPLICATION_NAME || "CHARGES";
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargeschemetype", dbSchema);
 
 var modelSchema = model.schema;
 
-audit.application = "CHARGES";
-audit.source = "ChargesSchemeType";
+schemeTypeAudit.application = name;
+schemeTypeAudit.source = "SCHEMETYPESERVICE";
 
 module.exports = {
   modelSchema,
@@ -28,14 +28,15 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
       if (typeof chargesSchemeTypeObject === 'undefined' || chargesSchemeTypeObject == null) {
         throw new Error("IllegalArgumentException: chargesSchemeTypeObject is null or undefined");
       }
-      audit.name = "CHARGES_SCHEMETYPE_SAVE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(chargesSchemeTypeObject);
-      audit.details = `Charges scheme type save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      schemeTypeAudit.name = "CHARGES_SCHEMETYPE_SAVE INITIALIZED";
+      schemeTypeAudit.source = "SCHEMETYPESERVICE";
+      schemeTypeAudit.ipAddress = ipAddress;
+      schemeTypeAudit.createdBy = createdBy;
+      schemeTypeAudit.keyDataAsJSON = JSON.stringify(chargesSchemeTypeObject);
+      schemeTypeAudit.details = `Charges scheme type save is initiated`;
+      schemeTypeAudit.eventDateTime = Date.now();
+      schemeTypeAudit.status = "SUCCESS";
+      docketClient.postToDocket(schemeTypeAudit);
       var res = validate(chargesSchemeTypeObject, modelSchema);
       debug("validation status: ", JSON.stringify(res));
       if (!res.valid) {
@@ -53,14 +54,15 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_SCHEMETYPE_SAVE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(chargesSchemeTypeObject);
-      audit.details = ``;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      schemeTypeAudit.name = "EXCEPTION IN CHARGES_SCHEMETYPE_SAVE";
+      schemeTypeAudit.source = "SCHEMETYPESERVICE";
+      schemeTypeAudit.ipAddress = ipAddress;
+      schemeTypeAudit.createdBy = createdBy;
+      schemeTypeAudit.keyDataAsJSON = JSON.stringify(chargesSchemeTypeObject);
+      schemeTypeAudit.details = ``;
+      schemeTypeAudit.eventDateTime = Date.now();
+      schemeTypeAudit.status = "FAILURE";
+      docketClient.postToDocket(schemeTypeAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -71,14 +73,15 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "CHARGES_SCHEMETYPE_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = `Charges scheme type find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      schemeTypeAudit.name = "CHARGES_SCHEMETYPE_FIND INITIALIZED";
+      schemeTypeAudit.source = "SCHEMETYPESERVICE";
+      schemeTypeAudit.ipAddress = ipAddress;
+      schemeTypeAudit.createdBy = createdBy;
+      schemeTypeAudit.keyDataAsJSON = "";
+      schemeTypeAudit.details = `Charges scheme type find is initiated`;
+      schemeTypeAudit.eventDateTime = Date.now();
+      schemeTypeAudit.status = "SUCCESS";
+      docketClient.postToDocket(schemeTypeAudit);
       collection.find(filter, orderby, skipCount, limit).then((result) => {
         debug(`Number of schemeTypes found is ${result.length}`);
         resolve(result);
@@ -87,14 +90,15 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_SCHEMETYPE_FIND";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = ``;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      schemeTypeAudit.name = "EXCEPTION IN CHARGES_SCHEMETYPE_FIND";
+      schemeTypeAudit.source = "SCHEMETYPESERVICE";
+      schemeTypeAudit.ipAddress = ipAddress;
+      schemeTypeAudit.createdBy = createdBy;
+      schemeTypeAudit.keyDataAsJSON = "";
+      schemeTypeAudit.details = ``;
+      schemeTypeAudit.eventDateTime = Date.now();
+      schemeTypeAudit.status = "FAILURE";
+      docketClient.postToDocket(schemeTypeAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
