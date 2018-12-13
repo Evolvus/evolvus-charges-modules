@@ -5,14 +5,15 @@ const dbSchema = require("./db/chargesCorporateLinkageSchema").schema;
 const validate = require("jsonschema")
   .validate;
 const docketClient = require("@evolvus/evolvus-docket-client");
-const audit = docketClient.audit;
+const corporateAudit = docketClient.audit;
 const chargePlan = require("@evolvus/evolvus-charges-charge-plan");
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargescorporatelinkage", dbSchema);
 var modelSchema = model.schema;
+const name=process.env.APPLICATION_NAME || "CHARGES";
 
-audit.application = "CHARGES";
-audit.source = "chargesCorporateLinkage";
+corporateAudit.application = name;
+corporateAudit.source = "CORPORATELINKAGESERVICE";
 
 module.exports = {
   modelSchema,
@@ -27,14 +28,15 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
       if (corporateLinkageObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      audit.name = "CHARGES_CORPORATE_LINKAGE_SAVE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(corporateLinkageObject);
-      audit.details = `Charges corporate linkage save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      corporateAudit.name = "CHARGES_CORPORATE_LINKAGE_SAVE INITIALIZED";
+      corporateAudit.source = "CORPORATELINKAGESERVICE";
+      corporateAudit.ipAddress = ipAddress;
+      corporateAudit.createdBy = createdBy;
+      corporateAudit.keyDataAsJSON = JSON.stringify(corporateLinkageObject);
+      corporateAudit.details = `Charges corporate linkage save is initiated`;
+      corporateAudit.eventDateTime = Date.now();
+      corporateAudit.status = "SUCCESS";
+      docketClient.postToDocket(corporateAudit);
       let filter = {
         "name": corporateLinkageObject.chargePlan.toUpperCase()
       };
@@ -76,14 +78,15 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
         reject(e);
       });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(corporateLinkageObject);
-      audit.details = `Charges gl paramaters save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      corporateAudit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
+      corporateAudit.source = "CORPORATELINKAGESERVICE";
+      corporateAudit.ipAddress = ipAddress;
+      corporateAudit.createdBy = createdBy;
+      corporateAudit.keyDataAsJSON = JSON.stringify(corporateLinkageObject);
+      corporateAudit.details = `Charges gl paramaters save is initiated`;
+      corporateAudit.eventDateTime = Date.now();
+      corporateAudit.status = "FAILURE";
+      docketClient.postToDocket(corporateAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -93,14 +96,15 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "CHARGES_CORPORATE_LINKAGE_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-      audit.details = `Charges Corporate Linkage find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      corporateAudit.name = "CHARGES_CORPORATE_LINKAGE_FIND INITIALIZED";
+      corporateAudit.source = "CORPORATELINKAGESERVICE";
+      corporateAudit.ipAddress = ipAddress;
+      corporateAudit.createdBy = createdBy;
+      corporateAudit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
+      corporateAudit.details = `Charges Corporate Linkage find is initiated`;
+      corporateAudit.eventDateTime = Date.now();
+      corporateAudit.status = "SUCCESS";
+      docketClient.postToDocket(corporateAudit);
       var populate = {
         path: 'chargePlan',
         model: 'chargeplan',
@@ -121,14 +125,15 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_FIND";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-      audit.details = `Charges Corporate Linkage find failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      corporateAudit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_FIND";
+      corporateAudit.source = "CORPORATELINKAGESERVICE";
+      corporateAudit.ipAddress = ipAddress;
+      corporateAudit.createdBy = createdBy;
+      corporateAudit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
+      corporateAudit.details = `Charges Corporate Linkage find failed`;
+      corporateAudit.eventDateTime = Date.now();
+      corporateAudit.status = "FAILURE";
+      docketClient.postToDocket(corporateAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -141,14 +146,15 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       if (updateObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      audit.name = "CHARGES_CORPORATE-LINKAGE_UPDATE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `Charges corporate linkage update is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      corporateAudit.name = "CHARGES_CORPORATE-LINKAGE_UPDATE INITIALIZED";
+      corporateAudit.source = "CORPORATELINKAGESERVICE";
+      corporateAudit.ipAddress = ipAddress;
+      corporateAudit.createdBy = createdBy;
+      corporateAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      corporateAudit.details = `Charges corporate linkage update is initiated`;
+      corporateAudit.eventDateTime = Date.now();
+      corporateAudit.status = "SUCCESS";
+      docketClient.postToDocket(corporateAudit);
       var result;
       var errors = [];
       _.mapKeys(updateObject, function(value, key) {
@@ -201,14 +207,15 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `Charges corpporate linkage UPDATE failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      corporateAudit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
+      corporateAudit.source = "CORPORATELINKAGESERVICE";
+      corporateAudit.ipAddress = ipAddress;
+      corporateAudit.createdBy = createdBy;
+      corporateAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      corporateAudit.details = `Charges corpporate linkage UPDATE failed`;
+      corporateAudit.eventDateTime = Date.now();
+      corporateAudit.status = "FAILURE";
+      docketClient.postToDocket(corporateAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
