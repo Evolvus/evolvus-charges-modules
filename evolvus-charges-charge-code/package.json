@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/Evolvus/evolvus-charges-charge-code#readme",
   "dependencies": {
-    "@evolvus/evolvus-charges-scheme-type": "^1.0.1",
-    "@evolvus/evolvus-charges-transaction-type": "^1.0.4",
+    "@evolvus/evolvus-charges-scheme-type": "^1.0.2",
+    "@evolvus/evolvus-charges-transaction-type": "^1.0.5",
     "@evolvus/evolvus-docket-client": "^1.0.3",
     "@evolvus/evolvus-mongo-dao": "^1.0.2",
     "debug": "^3.1.0",
