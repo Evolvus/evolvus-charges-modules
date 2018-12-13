@@ -39,7 +39,7 @@ module.exports.save = (billingObject, ipAddress, createdBy) => {
       if (billingObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      billAudit.name = "CHARGES_BILLING_SAVE INITIALIZED";
+      billAudit.name = "BILLING_SAVE INITIALIZED";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -62,7 +62,7 @@ module.exports.save = (billingObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      billAudit.name = "EXCEPTION IN CHARGES_BILLING_SAVE";
+      billAudit.name = "EXCEPTION ON BILLING_SAVE";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -83,7 +83,7 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
       if (billNumber == null || updateObject == null) {
         throw new Error("IllegalArgumentException: BillNumber or Input value is null or undefined");
       }
-      billAudit.name = "CHARGES_BILLING_UPDATE INITIALIZED";
+      billAudit.name = "BILLING_UPDATE INITIALIZED";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -158,7 +158,7 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      billAudit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
+      billAudit.name = "EXCEPTION ON BILLING_UPDATE";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -176,7 +176,7 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      billAudit.name = "CHARGES_BILLING_FIND INITIALIZED";
+      billAudit.name = "BILLING_FIND INITIALIZED";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -213,7 +213,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      billAudit.name = "EXCEPTION IN CHARGES_BILLING_FIND";
+      billAudit.name = "EXCEPTION ON BILLING_FIND";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -231,7 +231,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
 module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, ipAddress) => {
   return new Promise((resolve, reject) => {
     try {
-      billAudit.name = "CHARGES_GENERATE_BILL INITIALIZED";
+      billAudit.name = "BILL_GENERATION INITIALIZED";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -304,7 +304,7 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         })
       })
     } catch (error) {
-      billAudit.name = "EXCEPTION IN CHARGES_BILL_GENERATION";
+      billAudit.name = "EXCEPTION ON BILL_GENERATION";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -421,7 +421,7 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
 
     } catch (e) {
       var reference = shortid.generate();
-      billAudit.name = "BILL_EXCEPTION_ON_WORKFLOWUPDATE";
+      billAudit.name = "EXCEPTION_ON BILL_WORKFLOWUPDATE";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -439,6 +439,15 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
 module.exports.reattempt = (bill, createdBy, ipAddress) => {
   return new Promise((resolve, reject) => {
     try {
+      billAudit.name = "BILL_REATTEMPT INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(bill);
+      billAudit.details = `bill reattempt initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       axios.post(`${ChargesServiceUrl}/accountPosting`, {
         billNumber: bill.billNumber
       }, {
@@ -478,7 +487,16 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
           reject(e);
         });
     } catch (error) {
-      reject(error)
+      billAudit.name = "EXCEPTION_ON BILL_REATTEMPT";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(bill);
+      billAudit.details = `bill reattempt failed.`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
+      reject(error);
     }
   });
 
@@ -490,7 +508,7 @@ module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, cre
       if (billNumber == null || updateObject == null) {
         throw new Error("IllegalArgumentException: BillNumber or Input value is null or undefined");
       }
-      billAudit.name = "CHARGES_BILLING_UPDATE_WITHOUT_WORKFLOW INITIALIZED";
+      billAudit.name = "BILL_UPDATE_WITHOUT_WRKFLW";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
@@ -537,12 +555,12 @@ module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, cre
         });
       }
     } catch (e) {
-      billAudit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
+      billAudit.name = "EXCEPTION ON BILLING_UPDATE";
       billAudit.source = "BILLSERVICE";
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
       billAudit.keyDataAsJSON = JSON.stringify(update);
-      billAudit.details = `Charges billing UPDATE failed`;
+      billAudit.details = `Charges billing UPDATE without workflow failed`;
       billAudit.eventDateTime = Date.now();
       billAudit.status = "FAILURE";
       docketClient.postToDocket(billAudit);
