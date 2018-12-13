@@ -29,10 +29,14 @@ module.exports.save = (chargesTransactionTypeObject, ipAddress, createdBy) => {
         throw new Error("IllegalArgumentException:createdBy is null/undefined");
       }
 
-      transactionAudit.name = "ChargesTransactionType_Save";
+      transactionAudit.name = "TRANSACTION_TYPE SAVE INITIALIZED";
       transactionAudit.source = "TRANSACTIONTYPESERVICE";
       transactionAudit.keyDataAsJSON = JSON.stringify(chargesTransactionTypeObject);
       transactionAudit.details = `chargesTransactionType creation initiated`;
+      transactionAudit.ipAddress = ipAddress;
+      transactionAudit.createdBy = createdBy;
+      transactionAudit.eventDateTime = Date.now();
+      transactionAudit.status = "SUCCESS";
       docketClient.postToDocket(transactionAudit);
       var res = validate(chargesTransactionTypeObject, modelSchema);
       debug("validation status: ", JSON.stringify(res));
@@ -49,10 +53,14 @@ module.exports.save = (chargesTransactionTypeObject, ipAddress, createdBy) => {
       }
 
     } catch (e) {
-      transactionAudit.name = "ChargesTransactionType_ExceptionOnSave";
+      transactionAudit.name = "EXCEPTION_ON_TXNTYPE SAVE";
       transactionAudit.source = "TRANSACTIONTYPESERVICE";
       transactionAudit.keyDataAsJSON = JSON.stringify(chargesTransactionTypeObject);
       transactionAudit.details = `Caught Exception on ChargesTransactionType_Save ${e.message}`;
+      transactionAudit.ipAddress = ipAddress;
+      transactionAudit.createdBy = createdBy;
+      transactionAudit.eventDateTime = Date.now();
+      transactionAudit.status = "FAILURE";
       docketClient.postToDocket(transactionAudit);
       debug(`caught exception ${e}`);
       reject(e);
@@ -63,11 +71,11 @@ module.exports.save = (chargesTransactionTypeObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      transactionAudit.name = "CHARGES_TRANSACTIONTYPE_FIND INITIALIZED";
+      transactionAudit.name = "TRANSACTIONTYPE_FIND INITIALIZED";
       transactionAudit.source = "TRANSACTIONTYPESERVICE";
       transactionAudit.ipAddress = ipAddress;
       transactionAudit.createdBy = createdBy;
-      transactionAudit.keyDataAsJSON = "";
+      transactionAudit.keyDataAsJSON = JSON.stringify(filter);
       transactionAudit.details = `Charges transaction type find is initiated`;
       transactionAudit.eventDateTime = Date.now();
       transactionAudit.status = "SUCCESS";
@@ -80,12 +88,12 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      transactionAudit.name = "EXCEPTION IN CHARGES_TRANSACTIONTYPE_FIND";
+      transactionAudit.name = "EXCEPTION IN TRANSACTIONTYPE_FIND";
       transactionAudit.source = "TRANSACTIONTYPESERVICE";
       transactionAudit.ipAddress = ipAddress;
       transactionAudit.createdBy = createdBy;
-      transactionAudit.keyDataAsJSON = "";
-      transactionAudit.details = ``;
+      transactionAudit.keyDataAsJSON = JSON.stringify(filter);
+      transactionAudit.details = `Charges transaction type find is failed.`;
       transactionAudit.eventDateTime = Date.now();
       transactionAudit.status = "FAILURE";
       docketClient.postToDocket(transactionAudit);
