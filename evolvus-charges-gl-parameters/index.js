@@ -30,7 +30,7 @@ module.exports.save = (chargesGlParametersObject, ipAddress, createdBy) => {
       if (chargesGlParametersObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      glAudit.name = "CHARGES_GL_PARAMETERS_SAVE INITIALIZED";
+      glAudit.name = "GL_PARAMETERS_SAVE INITIALIZED";
       glAudit.source = "GLPARAMETERSSERVICE";
       glAudit.ipAddress = ipAddress;
       glAudit.createdBy = createdBy;
@@ -70,12 +70,12 @@ module.exports.save = (chargesGlParametersObject, ipAddress, createdBy) => {
         reject(e);
       });
     } catch (e) {
-      glAudit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_UPDATE";
+      glAudit.name = "EXCEPTION IN GL_PARAMETERS_UPDATE";
       glAudit.source = "GLPARAMETERSSERVICE";
       glAudit.ipAddress = ipAddress;
       glAudit.createdBy = createdBy;
       glAudit.keyDataAsJSON = JSON.stringify(chargesGlParametersObject);
-      glAudit.details = `Charges gl paramaters save is initiated`;
+      glAudit.details = `Charges gl paramaters save is failed`;
       glAudit.eventDateTime = Date.now();
       glAudit.status = "FAILURE";
       docketClient.postToDocket(glAudit);
@@ -91,7 +91,7 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
       if (updateObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      glAudit.name = "CHARGES_GL_PARAMETERS_UPDATE INITIALIZED";
+      glAudit.name = "GL_PARAMETERS_UPDATE INITIALIZED";
       glAudit.source = "GLPARAMETERSSERVICE";
       glAudit.ipAddress = ipAddress;
       glAudit.createdBy = createdBy;
@@ -144,7 +144,7 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
           });
       }
     } catch (e) {
-      glAudit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_UPDATE";
+      glAudit.name = "EXCEPTION IN GL_PARAMETERS_UPDATE";
       glAudit.source = "GLPARAMETERSSERVICE";
       glAudit.ipAddress = ipAddress;
       glAudit.createdBy = createdBy;
@@ -162,7 +162,7 @@ module.exports.update = (id, updateObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      glAudit.name = "CHARGES_GL_PARAMETERS_FIND INITIALIZED";
+      glAudit.name = "GL_PARAMETERS_FIND INITIALIZED";
       glAudit.source = "GLPARAMETERSSERVICE";
       glAudit.ipAddress = ipAddress;
       glAudit.createdBy = createdBy;
@@ -179,7 +179,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      glAudit.name = "EXCEPTION IN CHARGES_GL_PARAMETERS_FIND";
+      glAudit.name = "EXCEPTION IN GL_PARAMETERS_FIND";
       glAudit.source = "GLPARAMETERSSERVICE";
       glAudit.ipAddress = ipAddress;
       glAudit.createdBy = createdBy;
