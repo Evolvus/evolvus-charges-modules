@@ -3,7 +3,7 @@ const model = require("./model/chargesChargeCodeSchema");
 const db = require("./db/chargesChargeCodeSchema");
 const validate = require("jsonschema").validate;
 const docketClient = require("@evolvus/evolvus-docket-client");
-const audit = docketClient.audit;
+const chargecodeAudit = docketClient.audit;
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargecode", db.schema);
 const schemeType = require("@evolvus/evolvus-charges-scheme-type");
@@ -12,11 +12,15 @@ const _ = require("lodash");
 
 const dbSchema = db.schema;
 const modelSchema = model.schema;
+const name = process.env.APPLICATION_NAME || "CHARGES";
 
 module.exports = {
   dbSchema,
   modelSchema
 };
+
+chargecodeAudit.application = name;
+chargecodeAudit.source = "CHARGECODESERVICE";
 
 module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
@@ -31,10 +35,11 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
         throw new Error("IllegalArgumentException:createdBy is null/undefined");
       }
 
-      audit.name = "ChargesChargeCode_save";
-      audit.keyDataAsJSON = JSON.stringify(chargesChargeCodeObject);
-      audit.details = `ChargesChargeCode creation initiated`;
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "ChargesChargeCode_save";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.keyDataAsJSON = JSON.stringify(chargesChargeCodeObject);
+      chargecodeAudit.details = `ChargesChargeCode creation initiated`;
+      docketClient.postToDocket(chargecodeAudit);
       var res = validate(chargesChargeCodeObject, modelSchema);
       debug("Validation status: ", JSON.stringify(res));
       if (!res.valid) {
@@ -84,10 +89,11 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
           });
       }
     } catch (e) {
-      audit.name = "ChargesChargeCode_ExceptionOnSave";
-      audit.keyDataAsJSON = JSON.stringify(chargesChargeCodeObject);
-      audit.details = `Caught Exception on chargesChargeCode_save ${e.message}`;
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "ChargesChargeCode_ExceptionOnSave";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.keyDataAsJSON = JSON.stringify(chargesChargeCodeObject);
+      chargecodeAudit.details = `Caught Exception on chargesChargeCode_save ${e.message}`;
+      docketClient.postToDocket(chargecodeAudit);
       debug(`Caught exception ${e}`);
       reject(e);
     }
@@ -104,14 +110,15 @@ module.exports.find = (
 ) => {
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "CHARGES_CODE_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = `Charges Code find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "CHARGES_CODE_FIND INITIALIZED";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = "";
+      chargecodeAudit.details = `Charges Code find is initiated`;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargecodeAudit);
       let populate = ["transactionType"];
       collection
         .findAndPopulate(filter, populate, orderby, skipCount, limit)
@@ -124,14 +131,15 @@ module.exports.find = (
           reject(e);
         });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_CODE_FIND";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = ``;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "EXCEPTION IN CHARGES_CODE_FIND";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = "";
+      chargecodeAudit.details = ``;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "FAILURE";
+      docketClient.postToDocket(chargecodeAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -146,14 +154,15 @@ getSchemeTypeAndTransactionType = (
 ) => {
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "SCHEMETYPE_FIND and TRANSACTION_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = `SchemeType and TransactionType Find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "SCHEMETYPE_FIND and TRANSACTION_FIND INITIALIZED";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = "";
+      chargecodeAudit.details = `SchemeType and TransactionType Find is initiated`;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargecodeAudit);
 
       var schemeTypeFilter = {
         name: schemeTypeName
@@ -180,14 +189,15 @@ getSchemeTypeAndTransactionType = (
           reject(`Failed to fetch Scheme Type and Transaction Type : ${error}`);
         });
     } catch (e) {
-      audit.name = "EXCEPTION IN SCHEMETYPE_FIND and TRANSACTIONTYPE_FIND";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = "";
-      audit.details = ``;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "EXCEPTION IN SCHEMETYPE_FIND and TRANSACTIONTYPE_FIND";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = "";
+      chargecodeAudit.details = ``;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "FAILURE";
+      docketClient.postToDocket(chargecodeAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -220,6 +230,14 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
             "_id": updateObject.transactionType
           };
         }
+        chargecodeAudit.name = "CHARGECODE_UPDATE INITIALIZED";
+        chargecodeAudit.ipAddress = ipAddress;
+        chargecodeAudit.createdBy = createdBy;
+        chargecodeAudit.keyDataAsJSON = JSON.stringify(updateObject);
+        chargecodeAudit.details = `ChargeCode update is initiated`;
+        chargecodeAudit.eventDateTime = Date.now();
+        chargecodeAudit.status = "SUCCESS";
+        docketClient.postToDocket(chargecodeAudit);
         Promise.all([schemeType.find(filter, {}, 0, 1, ipAddress, createdBy), transactionType.find(filter1, {}, 0, 1, ipAddress, createdBy)]).then((findResult) => {
           if (_.isEmpty(findResult[0])) {
             throw new Error("Invalid Scheme Type");
@@ -260,14 +278,15 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGECODE_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `ChargeCode UPDATE failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      chargecodeAudit.name = "EXCEPTION IN CHARGECODE_UPDATE";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      chargecodeAudit.details = `ChargeCode UPDATE failed`;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "FAILURE";
+      docketClient.postToDocket(chargecodeAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
