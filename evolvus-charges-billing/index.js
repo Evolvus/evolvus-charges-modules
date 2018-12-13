@@ -67,7 +67,7 @@ module.exports.save = (billingObject, ipAddress, createdBy) => {
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
       billAudit.keyDataAsJSON = JSON.stringify(billingObject);
-      billAudit.details = `Charges billing save is initiated`;
+      billAudit.details = `Charges billing save is failed`;
       billAudit.eventDateTime = Date.now();
       billAudit.status = "FAILURE";
       docketClient.postToDocket(billAudit);
@@ -309,7 +309,7 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
       billAudit.ipAddress = ipAddress;
       billAudit.createdBy = createdBy;
       billAudit.keyDataAsJSON = JSON.stringify(corporate);
-      billAudit.details = `Charges billing save is initiated`;
+      billAudit.details = `Charges billing save is failed`;
       billAudit.eventDateTime = Date.now();
       billAudit.status = "FAILURE";
       docketClient.postToDocket(billAudit);
