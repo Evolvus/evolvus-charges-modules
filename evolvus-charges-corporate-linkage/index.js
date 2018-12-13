@@ -83,7 +83,7 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
       corporateAudit.keyDataAsJSON = JSON.stringify(corporateLinkageObject);
-      corporateAudit.details = `Charges gl paramaters save is initiated`;
+      corporateAudit.details = `Charges gl paramaters save is failed`;
       corporateAudit.eventDateTime = Date.now();
       corporateAudit.status = "FAILURE";
       docketClient.postToDocket(corporateAudit);
