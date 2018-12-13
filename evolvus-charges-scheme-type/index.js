@@ -59,7 +59,7 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
       schemeTypeAudit.keyDataAsJSON = JSON.stringify(chargesSchemeTypeObject);
-      schemeTypeAudit.details = ``;
+      schemeTypeAudit.details = `Charges scheme type save is failed due to ${e}`;
       schemeTypeAudit.eventDateTime = Date.now();
       schemeTypeAudit.status = "FAILURE";
       docketClient.postToDocket(schemeTypeAudit);
@@ -77,7 +77,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       schemeTypeAudit.source = "SCHEMETYPESERVICE";
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
-      schemeTypeAudit.keyDataAsJSON = "";
+      schemeTypeAudit.keyDataAsJSON = JSON.stringify(filter);
       schemeTypeAudit.details = `Charges scheme type find is initiated`;
       schemeTypeAudit.eventDateTime = Date.now();
       schemeTypeAudit.status = "SUCCESS";
@@ -94,8 +94,8 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       schemeTypeAudit.source = "SCHEMETYPESERVICE";
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
-      schemeTypeAudit.keyDataAsJSON = "";
-      schemeTypeAudit.details = ``;
+      schemeTypeAudit.keyDataAsJSON = JSON.stringify(filter);
+      schemeTypeAudit.details = `Charges scheme type find is failed due to ${e}`;
       schemeTypeAudit.eventDateTime = Date.now();
       schemeTypeAudit.status = "FAILURE";
       docketClient.postToDocket(schemeTypeAudit);
