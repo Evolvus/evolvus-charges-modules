@@ -5,7 +5,7 @@ const validate = require("jsonschema").validate;
 const _ = require('lodash');
 const glParameters = require("@evolvus/evolvus-charges-gl-parameters");
 const docketClient = require("@evolvus/evolvus-docket-client");
-const audit = docketClient.audit;
+const billAudit = docketClient.audit;
 var randomString = require('random-string');
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("billing", dbSchema);
@@ -19,10 +19,11 @@ var fs = require("fs");
 let toWords = require('to-words');
 var shortid = require("shortid");
 var axios = require("axios");
+var name=process.env.APPLICATION_NAME || "CHARGES";
 var ChargesServiceUrl = process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
 
-audit.application = "CHARGES";
-audit.source = "Billing";
+billAudit.application = name;
+billAudit.source = "BILLSERVICE";
 
 module.exports = {
   modelSchema,
@@ -38,14 +39,15 @@ module.exports.save = (billingObject, ipAddress, createdBy) => {
       if (billingObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      audit.name = "CHARGES_BILLING_SAVE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(billingObject);
-      audit.details = `Charges gl paramaters save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      billAudit.name = "CHARGES_BILLING_SAVE INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(billingObject);
+      billAudit.details = `Charges bill save is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       var res = validate(billingObject, modelSchema);
       debug("validation status: ", JSON.stringify(res.valid));
       if (!res.valid) {
@@ -60,14 +62,15 @@ module.exports.save = (billingObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_BILLING_SAVE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(billingObject);
-      audit.details = `Charges billing save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      billAudit.name = "EXCEPTION IN CHARGES_BILLING_SAVE";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(billingObject);
+      billAudit.details = `Charges billing save is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -80,14 +83,15 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
       if (billNumber == null || updateObject == null) {
         throw new Error("IllegalArgumentException: BillNumber or Input value is null or undefined");
       }
-      audit.name = "CHARGES_BILLING_UPDATE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `Charges billing update is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      billAudit.name = "CHARGES_BILLING_UPDATE INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      billAudit.details = `Charges billing update is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       var result;
       var errors = [];
       _.mapKeys(updateObject, function (value, key) {
@@ -154,14 +158,15 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(update);
-      audit.details = `Charges billing UPDATE failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      billAudit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(update);
+      billAudit.details = `Charges billing UPDATE failed`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -171,14 +176,15 @@ module.exports.update = (billNumber, updateObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "CHARGES_BILLING_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-      audit.details = `Charges billing find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      billAudit.name = "CHARGES_BILLING_FIND INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
+      billAudit.details = `Charges billing find is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       let filterObject = _.pick(filter, filterAttributes);
       if (filter.fromDate != null && filter.toDate != null) {
         filterObject = {
@@ -207,14 +213,15 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_BILLING_FIND";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-      audit.details = `Charges Billing find failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      billAudit.name = "EXCEPTION IN CHARGES_BILLING_FIND";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
+      billAudit.details = `Charges Billing find failed`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -224,6 +231,15 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
 module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, ipAddress) => {
   return new Promise((resolve, reject) => {
     try {
+      billAudit.name = "CHARGES_GENERATE_BILL INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(corporate);
+      billAudit.details = `Charges bill generation initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       let sum = 0;
       let details = [];
       corporate.chargePlan.chargeCodes.forEach(chargeCode => {
@@ -288,6 +304,15 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         })
       })
     } catch (error) {
+      billAudit.name = "EXCEPTION IN CHARGES_BILL_GENERATION";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(corporate);
+      billAudit.details = `Charges billing save is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
       debug(error);
       reject(error);
     }
@@ -303,14 +328,15 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
       if (utilityCode == null || billNumber == null || update == null) {
         throw new Error("IllegalArgumentException:utilityCode or billNumber or input is null or undefined");
       }
-      audit.name = "BILL_WORKFLOW_UPDATE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `update bill with  ${JSON.stringify(update)}`;
-      audit.details = `bill update method`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      billAudit.name = "BILL_WORKFLOW_UPDATE INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = `update bill with  ${JSON.stringify(update)}`;
+      billAudit.details = `bill update method`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       let emailFormat = "F";
       let GST = 0;
       let flag = "2";
@@ -395,14 +421,15 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
 
     } catch (e) {
       var reference = shortid.generate();
-      audit.name = "BILL_EXCEPTION_ON_WORKFLOWUPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `update user with object ${JSON.stringify(update)}`;
-      audit.details = `caught Exception on user_update ${e.message}`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      billAudit.name = "BILL_EXCEPTION_ON_WORKFLOWUPDATE";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = `update user with object ${JSON.stringify(update)}`;
+      billAudit.details = `caught Exception on user_update ${e.message}`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
       debug(`try_catch failure due to :${e} and referenceId :${reference}`);
       reject(e);
     }
@@ -463,14 +490,15 @@ module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, cre
       if (billNumber == null || updateObject == null) {
         throw new Error("IllegalArgumentException: BillNumber or Input value is null or undefined");
       }
-      audit.name = "CHARGES_BILLING_UPDATE_WITHOUT_WORKFLOW INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `Charges billing update is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      billAudit.name = "CHARGES_BILLING_UPDATE_WITHOUT_WORKFLOW INITIALIZED";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      billAudit.details = `Charges billing update is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
       var result;
       var errors = [];
       _.mapKeys(updateObject, function (value, key) {
@@ -509,14 +537,15 @@ module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, cre
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(update);
-      audit.details = `Charges billing UPDATE failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      billAudit.name = "EXCEPTION IN CHARGES_BILLING_UPDATE";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(update);
+      billAudit.details = `Charges billing UPDATE failed`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
