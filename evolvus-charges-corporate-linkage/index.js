@@ -28,7 +28,7 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
       if (corporateLinkageObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      corporateAudit.name = "CHARGES_CORPORATE_LINKAGE_SAVE INITIALIZED";
+      corporateAudit.name = "CORPORATELINKAGE_SAVE INITIALIZED";
       corporateAudit.source = "CORPORATELINKAGESERVICE";
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
@@ -78,7 +78,7 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
         reject(e);
       });
     } catch (e) {
-      corporateAudit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
+      corporateAudit.name = "EXCEPTION ON CORP_LINKAGE_UPDATE";
       corporateAudit.source = "CORPORATELINKAGESERVICE";
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
@@ -96,7 +96,7 @@ module.exports.save = (corporateLinkageObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      corporateAudit.name = "CHARGES_CORPORATE_LINKAGE_FIND INITIALIZED";
+      corporateAudit.name = "CORPORATELINKAGE_FIND INITIALIZED";
       corporateAudit.source = "CORPORATELINKAGESERVICE";
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
@@ -125,7 +125,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      corporateAudit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_FIND";
+      corporateAudit.name = "EXCEPTION ON CORP_LINKAGE_FIND";
       corporateAudit.source = "CORPORATELINKAGESERVICE";
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
@@ -146,7 +146,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       if (updateObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      corporateAudit.name = "CHARGES_CORPORATE-LINKAGE_UPDATE INITIALIZED";
+      corporateAudit.name = "CORP_LINKAGE_UPDATE INITIALIZED";
       corporateAudit.source = "CORPORATELINKAGESERVICE";
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
@@ -207,7 +207,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      corporateAudit.name = "EXCEPTION IN CHARGES_CORPORATE_LINKAGE_UPDATE";
+      corporateAudit.name = "EXCEPTION ON CORP_LINKAGE_UPDATE";
       corporateAudit.source = "CORPORATELINKAGESERVICE";
       corporateAudit.ipAddress = ipAddress;
       corporateAudit.createdBy = createdBy;
