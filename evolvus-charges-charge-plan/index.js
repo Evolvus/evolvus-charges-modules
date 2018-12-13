@@ -5,15 +5,16 @@ const dbSchema = require("./db/chargePlanSchema").schema;
 const validate = require("jsonschema")
   .validate;
 const docketClient = require("@evolvus/evolvus-docket-client");
-const audit = docketClient.audit;
+const chargeplanAudit = docketClient.audit;
 
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargeplan", dbSchema);
 const chargeCode = require("@evolvus/evolvus-charges-charge-code");
+const name = process.env.APPLICATION_NAME || "CHARGES";
 var modelSchema = model.schema;
 
-audit.application = "CHARGES";
-audit.source = "chargeplan";
+chargeplanAudit.application = name;
+chargeplanAudit.source = "CHARGEPLANSERVICE";
 
 module.exports = {
   modelSchema,
@@ -28,14 +29,15 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
       if (chargePlanObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      audit.name = "CHARGE_PLAN_SAVE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(chargePlanObject);
-      audit.details = `ChargePlan save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      chargeplanAudit.name = "CHARGE_PLAN_SAVE INITIALIZED";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = JSON.stringify(chargePlanObject);
+      chargeplanAudit.details = `ChargePlan save is initiated`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargeplanAudit);
       var res = validate(chargePlanObject, modelSchema);
       debug("validation status: ", JSON.stringify(res));
       if (!res.valid) {
@@ -77,14 +79,15 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
         }
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGE_PLAN_SAVE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(chargePlanObject);
-      audit.details = `ChargePlan save is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      chargeplanAudit.name = "EXCEPTION IN CHARGE_PLAN_SAVE";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = JSON.stringify(chargePlanObject);
+      chargeplanAudit.details = `ChargePlan save is initiated`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "FAILURE";
+      docketClient.postToDocket(chargeplanAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -94,14 +97,15 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      audit.name = "CHARGES_PLAN_FIND INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-      audit.details = `ChargePlan find is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      chargeplanAudit.name = "CHARGES_PLAN_FIND INITIALIZED";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
+      chargeplanAudit.details = `ChargePlan find is initiated`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargeplanAudit);
       var populate = {
         path: 'chargeCodes',
         model: 'chargecode',
@@ -120,14 +124,15 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
           reject(e);
         });
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGEPLAN_FIND";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
-      audit.details = `ChargePlan find failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      chargeplanAudit.name = "EXCEPTION IN CHARGEPLAN_FIND";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = `The filter Object is ${JSON.stringify(filter)}`;
+      chargeplanAudit.details = `ChargePlan find failed`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "FAILURE";
+      docketClient.postToDocket(chargeplanAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
@@ -140,14 +145,15 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       if (updateObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
       }
-      audit.name = "CHARGEPLAN_UPDATE INITIALIZED";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `ChargePlan update is initiated`;
-      audit.eventDateTime = Date.now();
-      audit.status = "SUCCESS";
-      docketClient.postToDocket(audit);
+      chargeplanAudit.name = "CHARGEPLAN_UPDATE INITIALIZED";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      chargeplanAudit.details = `ChargePlan update is initiated`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargeplanAudit);
       var result;
       var errors = [];
       _.mapKeys(updateObject, function(value, key) {
@@ -194,14 +200,15 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      audit.name = "EXCEPTION IN CHARGEPLAN_UPDATE";
-      audit.ipAddress = ipAddress;
-      audit.createdBy = createdBy;
-      audit.keyDataAsJSON = JSON.stringify(updateObject);
-      audit.details = `ChargePlan UPDATE failed`;
-      audit.eventDateTime = Date.now();
-      audit.status = "FAILURE";
-      docketClient.postToDocket(audit);
+      chargeplanAudit.name = "EXCEPTION IN CHARGEPLAN_UPDATE";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = JSON.stringify(updateObject);
+      chargeplanAudit.details = `ChargePlan UPDATE failed`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "FAILURE";
+      docketClient.postToDocket(chargeplanAudit);
       debug(`caught exception ${e}`);
       reject(e);
     }
