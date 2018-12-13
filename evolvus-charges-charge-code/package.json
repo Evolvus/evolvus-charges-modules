@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-charge-code",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "ChargesChargeCode encapsulates ChargesChargeCode functionality across all Evolvus products",
   "main": "index.js",
   "scripts": {
@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/Evolvus/evolvus-charges-charge-code#readme",
   "dependencies": {
-    "@evolvus/evolvus-charges-scheme-type": "^1.0.2",
-    "@evolvus/evolvus-charges-transaction-type": "^1.0.5",
+    "@evolvus/evolvus-charges-scheme-type": "^1.0.3",
+    "@evolvus/evolvus-charges-transaction-type": "^1.0.6",
     "@evolvus/evolvus-docket-client": "^1.0.3",
     "@evolvus/evolvus-mongo-dao": "^1.0.2",
     "debug": "^3.1.0",
