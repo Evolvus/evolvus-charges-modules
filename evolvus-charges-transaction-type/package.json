@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-transaction-type",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "ChargesTransactionType is a sub-module of Charges Module",
   "main": "index.js",
   "scripts": {
