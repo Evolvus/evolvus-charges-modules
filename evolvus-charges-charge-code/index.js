@@ -35,10 +35,14 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
         throw new Error("IllegalArgumentException:createdBy is null/undefined");
       }
 
-      chargecodeAudit.name = "ChargesChargeCode_save";
+      chargecodeAudit.name = "CHARGECODE_SAVE INITIALIZED";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.keyDataAsJSON = JSON.stringify(chargesChargeCodeObject);
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
       chargecodeAudit.details = `ChargesChargeCode creation initiated`;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "SUCCESS";
       docketClient.postToDocket(chargecodeAudit);
       var res = validate(chargesChargeCodeObject, modelSchema);
       debug("Validation status: ", JSON.stringify(res));
@@ -89,9 +93,13 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
           });
       }
     } catch (e) {
-      chargecodeAudit.name = "ChargesChargeCode_ExceptionOnSave";
+      chargecodeAudit.name = "EXCEPTION_ON_CHARGECODE SAVE";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.keyDataAsJSON = JSON.stringify(chargesChargeCodeObject);
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "FAILURE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
       chargecodeAudit.details = `Caught Exception on chargesChargeCode_save ${e.message}`;
       docketClient.postToDocket(chargecodeAudit);
       debug(`Caught exception ${e}`);
@@ -110,7 +118,7 @@ module.exports.find = (
 ) => {
   return new Promise((resolve, reject) => {
     try {
-      chargecodeAudit.name = "CHARGES_CODE_FIND INITIALIZED";
+      chargecodeAudit.name = "CHARGE_CODE_FIND INITIALIZED";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.ipAddress = ipAddress;
       chargecodeAudit.createdBy = createdBy;
@@ -131,7 +139,7 @@ module.exports.find = (
           reject(e);
         });
     } catch (e) {
-      chargecodeAudit.name = "EXCEPTION IN CHARGES_CODE_FIND";
+      chargecodeAudit.name = "EXCEPTION ON CHARGE_CODE_FIND";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.ipAddress = ipAddress;
       chargecodeAudit.createdBy = createdBy;
@@ -154,11 +162,11 @@ getSchemeTypeAndTransactionType = (
 ) => {
   return new Promise((resolve, reject) => {
     try {
-      chargecodeAudit.name = "SCHEMETYPE_FIND and TRANSACTION_FIND INITIALIZED";
+      chargecodeAudit.name = "SCHM_TXNTYPE FIND INITIALIZED";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.ipAddress = ipAddress;
       chargecodeAudit.createdBy = createdBy;
-      chargecodeAudit.keyDataAsJSON = "";
+      chargecodeAudit.keyDataAsJSON = `${schemeTypeName},${transactionTypeName}`;
       chargecodeAudit.details = `SchemeType and TransactionType Find is initiated`;
       chargecodeAudit.eventDateTime = Date.now();
       chargecodeAudit.status = "SUCCESS";
@@ -189,11 +197,11 @@ getSchemeTypeAndTransactionType = (
           reject(`Failed to fetch Scheme Type and Transaction Type : ${error}`);
         });
     } catch (e) {
-      chargecodeAudit.name = "EXCEPTION IN SCHEMETYPE_FIND and TRANSACTIONTYPE_FIND";
+      chargecodeAudit.name = "EXCEPTION ON SCHM_TXNTYPE FIND";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.ipAddress = ipAddress;
       chargecodeAudit.createdBy = createdBy;
-      chargecodeAudit.keyDataAsJSON = "";
+      chargecodeAudit.keyDataAsJSON = `${schemeTypeName},${transactionTypeName}`;
       chargecodeAudit.details = ``;
       chargecodeAudit.eventDateTime = Date.now();
       chargecodeAudit.status = "FAILURE";
@@ -231,6 +239,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
           };
         }
         chargecodeAudit.name = "CHARGECODE_UPDATE INITIALIZED";
+        chargecodeAudit.source = "CHARGECODESERVICE";
         chargecodeAudit.ipAddress = ipAddress;
         chargecodeAudit.createdBy = createdBy;
         chargecodeAudit.keyDataAsJSON = JSON.stringify(updateObject);
@@ -278,7 +287,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      chargecodeAudit.name = "EXCEPTION IN CHARGECODE_UPDATE";
+      chargecodeAudit.name = "EXCEPTION ON CHARGECODE_UPDATE";
       chargecodeAudit.source = "CHARGECODESERVICE";
       chargecodeAudit.ipAddress = ipAddress;
       chargecodeAudit.createdBy = createdBy;
