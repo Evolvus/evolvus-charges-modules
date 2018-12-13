@@ -28,7 +28,7 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
       if (typeof chargesSchemeTypeObject === 'undefined' || chargesSchemeTypeObject == null) {
         throw new Error("IllegalArgumentException: chargesSchemeTypeObject is null or undefined");
       }
-      schemeTypeAudit.name = "CHARGES_SCHEMETYPE_SAVE INITIALIZED";
+      schemeTypeAudit.name = "SCHEMETYPE_SAVE INITIALIZED";
       schemeTypeAudit.source = "SCHEMETYPESERVICE";
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
@@ -54,7 +54,7 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      schemeTypeAudit.name = "EXCEPTION IN CHARGES_SCHEMETYPE_SAVE";
+      schemeTypeAudit.name = "EXCEPTION IN SCHEMETYPE_SAVE";
       schemeTypeAudit.source = "SCHEMETYPESERVICE";
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
@@ -73,7 +73,7 @@ module.exports.save = (chargesSchemeTypeObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      schemeTypeAudit.name = "CHARGES_SCHEMETYPE_FIND INITIALIZED";
+      schemeTypeAudit.name = "SCHEMETYPE_FIND INITIALIZED";
       schemeTypeAudit.source = "SCHEMETYPESERVICE";
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
@@ -90,7 +90,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
         reject(e);
       });
     } catch (e) {
-      schemeTypeAudit.name = "EXCEPTION IN CHARGES_SCHEMETYPE_FIND";
+      schemeTypeAudit.name = "EXCEPTION IN SCHEMETYPE_FIND";
       schemeTypeAudit.source = "SCHEMETYPESERVICE";
       schemeTypeAudit.ipAddress = ipAddress;
       schemeTypeAudit.createdBy = createdBy;
