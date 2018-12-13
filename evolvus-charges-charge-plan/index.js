@@ -79,7 +79,7 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
         }
       }
     } catch (e) {
-      chargeplanAudit.name = "EXCEPTION IN CHARGE_PLAN_SAVE";
+      chargeplanAudit.name = "EXCEPTION ON CHARGE_PLAN_SAVE";
       chargeplanAudit.source = "CHARGEPLANSERVICE";
       chargeplanAudit.ipAddress = ipAddress;
       chargeplanAudit.createdBy = createdBy;
@@ -97,7 +97,7 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
 module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
-      chargeplanAudit.name = "CHARGES_PLAN_FIND INITIALIZED";
+      chargeplanAudit.name = "CHARGE_PLAN_FIND INITIALIZED";
       chargeplanAudit.source = "CHARGEPLANSERVICE";
       chargeplanAudit.ipAddress = ipAddress;
       chargeplanAudit.createdBy = createdBy;
@@ -124,7 +124,7 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
           reject(e);
         });
     } catch (e) {
-      chargeplanAudit.name = "EXCEPTION IN CHARGEPLAN_FIND";
+      chargeplanAudit.name = "EXCEPTION ON CHARGEPLAN_FIND";
       chargeplanAudit.source = "CHARGEPLANSERVICE";
       chargeplanAudit.ipAddress = ipAddress;
       chargeplanAudit.createdBy = createdBy;
@@ -200,7 +200,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         });
       }
     } catch (e) {
-      chargeplanAudit.name = "EXCEPTION IN CHARGEPLAN_UPDATE";
+      chargeplanAudit.name = "EXCEPTION ON CHARGEPLAN_UPDATE";
       chargeplanAudit.source = "CHARGEPLANSERVICE";
       chargeplanAudit.ipAddress = ipAddress;
       chargeplanAudit.createdBy = createdBy;
