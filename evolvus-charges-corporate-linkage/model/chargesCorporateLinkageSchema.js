@@ -22,7 +22,7 @@ module.exports.schema = {
       "type": "string",
       "minLength": 10,
       "maxLength": 200,
-      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
+      "pattern": "^[A-Za-z0-9']+( [A-Za-z0-9']+)*$"
     },
     "emailId": {
       "type": "string",
