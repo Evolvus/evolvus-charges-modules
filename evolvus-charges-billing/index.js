@@ -19,7 +19,7 @@ var fs = require("fs");
 let toWords = require('to-words');
 var shortid = require("shortid");
 var axios = require("axios");
-var name=process.env.APPLICATION_NAME || "CHARGES";
+var name = process.env.APPLICATION_NAME || "CHARGES";
 var ChargesServiceUrl = process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
 
 billAudit.application = name;
@@ -258,7 +258,6 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
           });
         });
       });
-
       glParameters.find({}, {}, 0, 0, ipAddress, createdBy).then((glAccount) => {
         billingObject = {};
         billingObject.details = details;
@@ -279,30 +278,38 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
         billingObject.billPeriod = billPeriod;
         billingObject.actualGSTAmount = billingObject.finalGSTAmount = sum * Number(glAccount[0].GSTRate / 100).toFixed(2);
         billingObject.actualTotalAmount = billingObject.finalTotalAmount = billingObject.actualChargesAmount + billingObject.actualGSTAmount;
-        collection.save(billingObject, ipAddress, createdBy).then((res) => {
-          generatePDF(res, corporate, glAccount[0].GSTRate).then(response => {
-            var xmlObject = {
-              utilityCode: corporate.utilityCode,
-              billPeriod: billPeriod,
-              billNumber: billingObject.billNumber,
-              finalTotalAmount: billingObject.finalTotalAmount,
-              billDate: billingObject.billDate
-            };
-            generateXML.generateXml(corporate.emailId, "I", response.filename, xmlObject).then((xml) => {
-              debug(xml);
-              resolve(xml);
-            }).catch((e) => {
+        if (billingObject.finalTotalAmount > 0) {
+          collection.save(billingObject, ipAddress, createdBy).then((res) => {
+            generatePDF(res, corporate, glAccount[0].GSTRate).then(response => {
+              var xmlObject = {
+                utilityCode: corporate.utilityCode,
+                billPeriod: billPeriod,
+                billNumber: billingObject.billNumber,
+                finalTotalAmount: billingObject.finalTotalAmount,
+                billDate: billingObject.billDate
+              };
+              generateXML.generateXml(corporate.emailId, "I", response.filename, xmlObject).then((xml) => {
+                debug(xml);
+                resolve(xml);
+              }).catch((e) => {
+                debug(e);
+              });
+            }).catch(e => {
               debug(e);
-            });
+              resolve(e);
+            })
           }).catch(e => {
             debug(e);
-            resolve(e);
+            reject(e)
           })
-        }).catch(e => {
-          debug(e);
-          reject(e)
-        })
-      })
+        } else {
+          debug("As there are no transactions, Bill will not be generated.");
+          resolve("As there are no transactions, Bill will not be generated.");
+        }
+      }).catch(e => {
+        debug(e);
+        reject(e)
+      });
     } catch (error) {
       billAudit.name = "EXCEPTION ON BILL_GENERATION";
       billAudit.source = "BILLSERVICE";
