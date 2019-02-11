@@ -11,7 +11,7 @@ module.exports.schema = {
       "minLength": 2,
       "maxLength": 20,
       "unique": "true",
-      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
+      "pattern": "^[A-Za-z0-9']+( [A-Za-z0-9']+)*$"
     },
     "chargeCodes": {
       "type": "Array",
@@ -89,7 +89,7 @@ module.exports.schema = {
     "description": {
       "type": "string",
       "maxLength": 200,
-      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
+      "pattern": "^[A-Za-z0-9']+( [A-Za-z0-9']+)*$"
     },
     "createdBy": {
       "type": "string"
