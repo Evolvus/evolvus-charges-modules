@@ -29,13 +29,13 @@ module.exports.schema = {
       "type": "string",
       "minLength": 1,
       "maxLength": 200,
-      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
+      "pattern": "^[A-Za-z0-9']+( [A-Za-z0-9']+)*$"
     },
     "GSTAccountNarration": {
       "type": "string",
       "minLength": 1,
       "maxLength": 200,
-      "pattern": "^[A-Za-z']+( [A-Za-z']+)*$"
+      "pattern": "^[A-Za-z0-9']+( [A-Za-z0-9']+)*$"
     },
     "createdBy": {
       "type": "string"
