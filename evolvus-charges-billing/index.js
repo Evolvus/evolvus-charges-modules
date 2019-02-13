@@ -303,8 +303,8 @@ module.exports.generateBill = (corporate, transactions, billPeriod, createdBy, i
             reject(e)
           })
         } else {
-          debug("As there are no transactions, Bill will not be generated.");
-          resolve("As there are no transactions, Bill will not be generated.");
+          debug(`As there are no transactions, Bill will not be generated for the Utility Code ${billingObject.utilityCode}`);
+          resolve(`As there are no transactions, Bill will not be generated for the Utility Code ${billingObject.utilityCode}`);
         }
       }).catch(e => {
         debug(e);
