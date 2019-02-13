@@ -3,6 +3,17 @@ const validator = require("validator");
 
 var chargesChargeCodeSchema = new mongoose.Schema({
 
+  tenantId: {
+    type: String,
+    required: true,
+    minLength: 1,
+    maxLength: 64
+  },
+  wfInstanceId: {
+    type: String,
+    minlength: 0,
+    maxlength: 20
+  },
   name: {
     type: String,
     required: true,
@@ -10,7 +21,7 @@ var chargesChargeCodeSchema = new mongoose.Schema({
     max: 20,
     unique: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^[A-Za-z0-9']+( [A-Za-z0-9']+)*$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric and single space"
@@ -35,7 +46,7 @@ var chargesChargeCodeSchema = new mongoose.Schema({
     type: String,
     max: 200,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^[A-Za-z0-9']+( [A-Za-z0-9']+)*$/.test(v);
       },
       message: "{PATH} can contain only alphanumeric and single space"
@@ -89,6 +100,17 @@ var chargesChargeCodeSchema = new mongoose.Schema({
     type: String,
     enum: ["true", "false"],
     default: "false"
+  },
+
+  processingStatus: {
+    type: String,
+    default: "IN_PROGRESS"
+  },
+
+  activationStatus: {
+    type: String,
+    enum: ["ACTIVE", "INACTIVE"],
+    default: "INACTIVE"
   }
 
 });
@@ -96,8 +118,8 @@ var chargesChargeCodeSchema = new mongoose.Schema({
 chargesChargeCodeSchema.index({
   name: 1
 }, {
-  unique: true
-});
+    unique: true
+  });
 
 
 module.exports.schema = chargesChargeCodeSchema;

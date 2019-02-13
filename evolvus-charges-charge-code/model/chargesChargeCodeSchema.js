@@ -7,6 +7,23 @@ module.exports.schema = {
   "type": "object",
   "properties": {
 
+    "tenantId": {
+      "type": "string",
+      "maxLength": 64,
+      "filterable": true,
+      "sortable": true
+    },
+    "wfInstanceId": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 20,
+      "filterable": true,
+      "sortable": true
+    },
+    "_id": {
+      "filterable": true,
+      "sortable": false
+    },
     "name": {
       "type": "string",
       "minLength": 5,
@@ -75,6 +92,22 @@ module.exports.schema = {
     "deletedFlag": {
       "enum": ["true", "false"],
       "default": "false"
+    },
+
+    "processingStatus": {
+      "type": "string",
+      "default": 'IN_PROGRESS',
+      "displayable": true,
+      "filterable": true, //custom attributes
+      "sortable": true //custom attributes
+    },
+
+    "activationStatus": {
+      "type": "string",
+      "default": "INACTIVE",
+      "filterable": true,
+      "sortable": false,
+      "displayable": true
     }
   },
   "required": ["name", "type", "transactionType", "schemeType", "amount", "createdBy", "updatedBy", "createdDateAndTime", "updatedDateAndTime"]
