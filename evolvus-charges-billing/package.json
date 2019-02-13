@@ -1,6 +1,6 @@
 {
   "name": "@evolvus/evolvus-charges-billing",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/Evolvus/evolvus-charges-billing#readme",
   "dependencies": {
-    "@evolvus/evolvus-charges-corporate-linkage": "^1.0.17",
+    "@evolvus/evolvus-charges-corporate-linkage": "^1.0.18",
     "@evolvus/evolvus-charges-generate-pdf": "^1.0.5",
     "@evolvus/evolvus-charges-generate-xml": "^1.0.1",
     "@evolvus/evolvus-charges-gl-parameters": "^1.0.8",
