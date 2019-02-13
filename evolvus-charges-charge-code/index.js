@@ -9,6 +9,8 @@ const collection = new Dao("chargecode", db.schema);
 const schemeType = require("@evolvus/evolvus-charges-scheme-type");
 const transactionType = require("@evolvus/evolvus-charges-transaction-type");
 const _ = require("lodash");
+const sweClient = require("@evolvus/evolvus-swe-client");
+var shortid = require('shortid');
 
 const dbSchema = db.schema;
 const modelSchema = model.schema;
@@ -22,7 +24,7 @@ module.exports = {
 chargecodeAudit.application = name;
 chargecodeAudit.source = "CHARGECODESERVICE";
 
-module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
+module.exports.save = (tenantId, chargesChargeCodeObject, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
       if (typeof chargesChargeCodeObject == null) {
@@ -50,11 +52,11 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
         reject(res.errors);
       } else {
         getSchemeTypeAndTransactionType(
-            chargesChargeCodeObject.schemeType,
-            chargesChargeCodeObject.transactionType,
-            ipAddress,
-            createdBy
-          )
+          chargesChargeCodeObject.schemeType,
+          chargesChargeCodeObject.transactionType,
+          ipAddress,
+          createdBy
+        )
           .then(searchResult => {
             if (_.isEmpty(searchResult[0])) {
               throw new Error("Invalid Scheme Type");
@@ -74,7 +76,38 @@ module.exports.save = (chargesChargeCodeObject, ipAddress, createdBy) => {
                     .save(chargesChargeCodeObject)
                     .then(result => {
                       debug(`saved successfully ${result}`);
-                      resolve(result);
+                      var sweEventObject = {
+                        "tenantId": tenantId,
+                        "wfEntity": "CHARGECODE",
+                        "wfEntityAction": "CREATE",
+                        "createdBy": createdBy,
+                        "query": result._id,
+                        "object": chargesChargeCodeObject
+                      };
+                      debug(`calling sweClient initialize .sweEventObject :${JSON.stringify(sweEventObject)} is a parameter`);
+                      sweClient.initialize(sweEventObject).then((sweResult) => {
+                        var filterCode = {
+                          "tenantId": tenantId,
+                          "name": chargesChargeCodeObject.name
+                        };
+                        debug(`calling db update filterCode :${JSON.stringify(filterCode)} is a parameter`);
+                        collection.update(filterCode, {
+                          "processingStatus": sweResult.data.wfInstanceStatus,
+                          "wfInstanceId": sweResult.data.wfInstanceId
+                        }).then((codeObject) => {
+                          debug(`collection.update:user updated with workflow status and id:${JSON.stringify(codeObject)}`);
+                          resolve(chargesChargeCodeObject);
+                        }).catch((e) => {
+                          var reference = shortid.generate();
+                          debug(`collection.update promise failed due to :${e} and referenceId :${reference}`);
+                          reject(e);
+                        });
+                      }).catch((e) => {
+                        var reference = shortid.generate();
+                        debug(`sweClient.initialize promise failed due to :${e} and referenceId :${reference}`);
+                        reject(e);
+                      });
+                      // resolve(result);
                     })
                     .catch(e => {
                       debug(`failed to save with an error: ${e}`);
@@ -181,15 +214,15 @@ getSchemeTypeAndTransactionType = (
       };
 
       Promise.all([
-          schemeType.find(schemeTypeFilter, {}, 0, 1, ipAddress, createdBy),
-          transactionType.find(
-            transactionTypeFilter, {},
-            0,
-            1,
-            ipAddress,
-            createdBy
-          )
-        ])
+        schemeType.find(schemeTypeFilter, {}, 0, 1, ipAddress, createdBy),
+        transactionType.find(
+          transactionTypeFilter, {},
+          0,
+          1,
+          ipAddress,
+          createdBy
+        )
+      ])
         .then(result => {
           resolve(result);
         })
@@ -212,7 +245,7 @@ getSchemeTypeAndTransactionType = (
   });
 };
 
-module.exports.update = (code, updateObject, ipAddress, createdBy) => {
+module.exports.update = (tenantId, code, updateObject, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
       if (updateObject == null) {
@@ -265,8 +298,37 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
                   "name": code
                 }, updateObject).then((result) => {
                   if (result.nModified == 1) {
-                    debug(`updated successfully ${result}`);
-                    resolve(result);
+                    var sweEventObject = {
+                      "tenantId": tenantId,
+                      "wfEntity": "CHARGECODE",
+                      "wfEntityAction": "UPDATE",
+                      "createdBy": createdBy,
+                      "query": findResult[0]._id,
+                      "object": findResult[0]                    };
+
+                    debug(`calling sweClient initialize .sweEventObject :${JSON.stringify(sweEventObject)} is a parameter`);
+                    sweClient.initialize(sweEventObject).then((sweResult) => {
+                      var filterCode = {
+                        "tenantId": tenantId,
+                        "name": findResult[0].name
+                      };
+                      debug(`calling db update filterCode :${JSON.stringify(filterCode)} is a parameter`);
+                      collection.update(filterCode, {
+                        "processingStatus": sweResult.data.wfInstanceStatus,
+                        "wfInstanceId": sweResult.data.wfInstanceId
+                      }).then((codeObject) => {
+                        debug(`collection.update:chargeCode updated with workflow status and id:${JSON.stringify(codeObject)}`);
+                        resolve(codeObject);
+                      }).catch((e) => {
+                        var reference = shortid.generate();
+                        debug(`collection.update promise failed due to :${e} and referenceId :${reference}`);
+                        reject(e);
+                      });
+                    }).catch((e) => {
+                      var reference = shortid.generate();
+                      debug(`sweClient.initialize promise failed due to :${e} and referenceId :${reference}`);
+                      reject(e);
+                    });
                   } else {
                     debug(`Not able to update. ${result}`);
                     reject("Not able to update.Contact Administrator");
@@ -297,6 +359,52 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       chargecodeAudit.status = "FAILURE";
       docketClient.postToDocket(chargecodeAudit);
       debug(`caught exception ${e}`);
+      reject(e);
+    }
+  });
+};
+
+module.exports.updateWorkflow = (tenantId, ipAddress, createdBy, id, update) => {
+  debug(`index update method: tenantId :${tenantId}, id :${id}, update :${JSON.stringify(update)} are parameters`);
+  return new Promise((resolve, reject) => {
+    try {
+      if (tenantId == null || id == null || update == null) {
+        throw new Error("IllegalArgumentException:tenantId/id/update is null or undefined");
+      }
+      chargecodeAudit.name = "CRGCODE_SWE_UPDATE INITIALIZED";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = `update charge code with  ${JSON.stringify(update)}`;
+      chargecodeAudit.details = `charge code update method`;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargecodeAudit);
+      var filterCode = {
+        "tenantId": tenantId,
+        "_id": id
+      };
+      debug(`calling db update method, filterCode: ${JSON.stringify(filterCode)},update: ${JSON.stringify(update)}`);
+      collection.update(filterCode, update).then((resp) => {
+        debug("updated successfully", resp);
+        resolve(resp);
+      }).catch((error) => {
+        var reference = shortid.generate();
+        debug(`update promise failed due to ${error}, and reference Id :${reference}`);
+        reject(error);
+      });
+    } catch (e) {
+      var reference = shortid.generate();
+      chargecodeAudit.name = "CHRGCODE_EXCEPTION_ON_SWEUPDATE";
+      chargecodeAudit.source = "CHARGECODESERVICE";
+      chargecodeAudit.ipAddress = ipAddress;
+      chargecodeAudit.createdBy = createdBy;
+      chargecodeAudit.keyDataAsJSON = `Charge code user with object ${JSON.stringify(update)}`;
+      chargecodeAudit.details = `caught Exception on chargecode_update ${e.message}`;
+      chargecodeAudit.eventDateTime = Date.now();
+      chargecodeAudit.status = "FAILURE";
+      docketClient.postToDocket(chargecodeAudit);
+      debug(`try_catch failure due to :${e} and referenceId :${reference}`);
       reject(e);
     }
   });
