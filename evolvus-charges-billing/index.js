@@ -577,6 +577,49 @@ module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, cre
   });
 };
 
+module.exports.generatePdf = (filterObj, ipAddress, createdBy) => {
+  return new Promise((resolve, reject) => {
+    try {
+      billAudit.name = "BILL_PDF_GENERATION_FROM_UI";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(filterObj);
+      billAudit.details = `Charges billing pdf generation is initiated`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "SUCCESS";
+      docketClient.postToDocket(billAudit);
+      var result;
+      Promise.all([collection.findOne({
+        "billNumber": filterObj.billNumber
+      }), corporateLinkage.find({ "utilityCode": filterObj.utilityCode }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
+        GST = result[2][0].GSTRate;
+        generatePDF(result[0], result[1][0], GST).then((response) => {
+          resolve(response);
+        }).catch((e) => {
+          debug(`Finding bill promise failed`, e);
+          reject(e);
+        });
+      }).catch((e) => {
+        debug(`Finding bill promise failed`, e);
+        reject(e);
+      });
+
+    } catch (e) {
+      billAudit.name = "EXCEPTION ON BILL_PDF_GENERATION_FROM_UI";
+      billAudit.source = "BILLSERVICE";
+      billAudit.ipAddress = ipAddress;
+      billAudit.createdBy = createdBy;
+      billAudit.keyDataAsJSON = JSON.stringify(update);
+      billAudit.details = `Charges billing pdf generation failed`;
+      billAudit.eventDateTime = Date.now();
+      billAudit.status = "FAILURE";
+      docketClient.postToDocket(billAudit);
+      debug(`caught exception ${e}`);
+      reject(e);
+    }
+  });
+};
 
 function generatePDF(billObject, corporateDetails, GSTRate) {
   return new Promise((resolve, reject) => {
