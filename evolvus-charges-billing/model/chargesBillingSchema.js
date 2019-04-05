@@ -104,6 +104,9 @@ var chargesBillingSchema = {
     },
     "postingFailureReason": {
       "type": "string"
+    },
+    "errorCode": {
+      "type": "string"
     }
   },
   "required": ["corporateName", "tenantId", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]

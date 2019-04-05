@@ -21,6 +21,8 @@ var shortid = require("shortid");
 var axios = require("axios");
 var name = process.env.APPLICATION_NAME || "CHARGES";
 var ChargesServiceUrl = process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
+var ChargeAmountAfterFailure = process.env.RETURN_CHARGES || 750;
+var errorCode = process.env.ERROR_CODE || "003";
 
 billAudit.application = name;
 billAudit.source = "BILLSERVICE";
@@ -475,7 +477,16 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
             updateObject.processingStatus = "FAILURE";
           }
           collection.findOne({ billNumber: bill.billNumber }).then(billFound => {
-            module.exports.updateWithoutWorkflow(bill.billNumber, { "postingFailureReason": res.data.data.errorDesc }, ipAddress, createdBy).then(() => {
+            let updateObject = {};
+            if (res.data.data.errorCode == errorCode) {
+              updateObject.postingFailureReason = res.data.data.errorDesc;
+              updateObject.errorCode = res.data.data.errorCode;
+              updateObject.finalTotalAmount = billFound.finalTotalAmount + ChargeAmountAfterFailure;
+            } else {
+              updateObject.postingFailureReason = res.data.data.errorDesc;
+              updateObject.errorCode = res.data.data.errorCode;
+            }
+            module.exports.updateWithoutWorkflow(bill.billNumber, updateObject, ipAddress, createdBy).then(() => {
               module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
                 resolve(updated);
               }).catch(e => {
