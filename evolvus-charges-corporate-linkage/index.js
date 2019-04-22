@@ -173,7 +173,8 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
         let filter = {};
         if (updateObject.chargePlan) {
           filter = {
-            "_id": updateObject.chargePlan
+            // "_id": updateObject.chargePlan
+            "name": updateObject.chargePlan
           };
         }
         Promise.all([chargePlan.find(filter, {}, 0, 1, ipAddress, createdBy), collection.find({
@@ -186,6 +187,7 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
           } else if ((!_.isEmpty(findResult[1][0])) && (findResult[1][0].utilityCode != code)) {
             throw new Error(`UtilityCode ${code} cannot be modified`);
           } else {
+            updateObject.chargePlan = findResult[0][0]._id;
             collection.update({
               "utilityCode": code
             }, updateObject).then((result) => {
