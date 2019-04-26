@@ -107,6 +107,10 @@ var chargesBillingSchema = {
     },
     "errorCode": {
       "type": "string"
+    },
+    "returnCharges": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": ["corporateName", "tenantId", "utilityCode", "billDate", "billFrequency", "billNumber", "billPeriod", "actualChargesAmount", "actualGSTAmount", "actualTotalAmount", "finalChargesAmount", "finalGSTAmount", "finalTotalAmount", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]

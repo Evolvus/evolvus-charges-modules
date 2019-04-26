@@ -126,6 +126,10 @@ var chargesBillingSchema = new mongoose.Schema({
   },
   errorCode: {
     type: String
+  },
+  returnCharges: {
+    type: Number,
+    default: 0
   }
 
 });
