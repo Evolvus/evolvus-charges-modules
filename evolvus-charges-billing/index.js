@@ -191,19 +191,19 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
       if (filter.fromDate != null && filter.toDate != null) {
         filterObject = {
           $and: [{
-            $and: [filterObject]
-          },
-          {
-            $and: [{
-              billDate: {
-                $gte: filter.fromDate
-              }
-            }, {
-              billDate: {
-                $lte: filter.toDate
-              }
-            }]
-          }
+              $and: [filterObject]
+            },
+            {
+              $and: [{
+                billDate: {
+                  $gte: filter.fromDate
+                }
+              }, {
+                billDate: {
+                  $lte: filter.toDate
+                }
+              }]
+            }
           ]
         };
       }
@@ -355,7 +355,7 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
         flag = "1";
       } else if (update.processingStatus === "FAILURE") {
         update.billStatus = "CBS_POSTING_FAILURE";
-        var date = new Date();          // Get current Date
+        var date = new Date(); // Get current Date
         date.setDate(date.getDate() + 3);
         update.reattemptDate = date.toISOString();
         emailFormat = "F";
@@ -366,7 +366,9 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
       update.reattemptedStatus = update.billStatus;
       Promise.all([collection.findOne({
         "billNumber": billNumber
-      }), corporateLinkage.find({ "utilityCode": utilityCode }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
+      }), corporateLinkage.find({
+        "utilityCode": utilityCode
+      }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
         if (result[0]) {
           GST = result[2][0].GSTRate;
           debug(`calling db update method, filterBill:${billNumber} ,update: ${JSON.stringify(update)}`);
@@ -446,7 +448,7 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
 };
 
 module.exports.reattempt = (bill, createdBy, ipAddress) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       billAudit.name = "BILL_REATTEMPT INITIALIZED";
       billAudit.source = "BILLSERVICE";
@@ -457,53 +459,60 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
       billAudit.eventDateTime = Date.now();
       billAudit.status = "SUCCESS";
       docketClient.postToDocket(billAudit);
+      if (bill.errorCode == errorCode) {
+        var result = await collection.update({
+          billNumber: bill.billNumber
+        }, {
+          returnCharges: ChargeAmountAfterFailure + bill.returnCharges,
+          finalTotalAmount: bill.finalTotalAmount + ChargeAmountAfterFailure
+        });
+        debug("Updated Bill with return charges before Posting to CBS", result);
+        if (result.nModified != 1) {
+          throw new Error("Not able to update return charges");
+        }
+      }
       axios.post(`${ChargesServiceUrl}/accountPosting`, {
         billNumber: bill.billNumber
       }, {
-          headers: {
-            "X-USER": createdBy,
-            "X-IP-HEADER": ipAddress
-          }
-        }).then((res) => {
-          let updateObject = {
-            "reattemptFlag": "YES",
-            "updatedBy": createdBy,
-            "updatedDateAndTime": new Date().toISOString(),
-            "reattemptedDateAndTime": new Date().toISOString()
-          }
-          if (res.data.data.statusFlg === "0") {
-            updateObject.processingStatus = "AUTHORIZED";
-          } else {
-            updateObject.processingStatus = "FAILURE";
-          }
-          collection.findOne({ billNumber: bill.billNumber }).then(billFound => {
-            if (res.data.data.errorCode == errorCode) {
-              updateObject.postingFailureReason = res.data.data.errorDesc;
-              updateObject.errorCode = res.data.data.errorCode;
-              updateObject.returnCharges = ChargeAmountAfterFailure;
-              updateObject.finalTotalAmount = billFound.finalTotalAmount + ChargeAmountAfterFailure;
-            } else {
-              updateObject.postingFailureReason = res.data.data.errorDesc;
-              updateObject.errorCode = res.data.data.errorCode;
-            }
-            module.exports.updateWithoutWorkflow(bill.billNumber, updateObject, ipAddress, createdBy).then(() => {
-              module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
-                resolve(updated);
-              }).catch(e => {
-                debug(e);
-                resolve(e)
-              });
+        headers: {
+          "X-USER": createdBy,
+          "X-IP-HEADER": ipAddress
+        }
+      }).then((res) => {
+        let updateObject = {
+          "reattemptFlag": "YES",
+          "updatedBy": createdBy,
+          "updatedDateAndTime": new Date().toISOString(),
+          "reattemptedDateAndTime": new Date().toISOString()
+        }
+        if (res.data.data.statusFlg === "0") {
+          updateObject.processingStatus = "AUTHORIZED";
+        } else {
+          updateObject.processingStatus = "FAILURE";
+        }
+        collection.findOne({
+          billNumber: bill.billNumber
+        }).then(billFound => {
+          updateObject.postingFailureReason = res.data.data.errorDesc;
+          updateObject.errorCode = res.data.data.errorCode;
+          module.exports.updateWithoutWorkflow(bill.billNumber, updateObject, ipAddress, createdBy).then(() => {
+            module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
+              resolve(updated);
             }).catch(e => {
               debug(e);
               resolve(e)
-            })
+            });
           }).catch(e => {
-            reject(e)
-          });
+            debug(e);
+            resolve(e)
+          })
         }).catch(e => {
-          debug(e);
-          reject(e);
+          reject(e)
         });
+      }).catch(e => {
+        debug(e);
+        reject(e);
+      });
     } catch (error) {
       billAudit.name = "EXCEPTION_ON BILL_REATTEMPT";
       billAudit.source = "BILLSERVICE";
@@ -517,7 +526,6 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
       reject(error);
     }
   });
-
 }
 
 module.exports.updateWithoutWorkflow = (billNumber, updateObject, ipAddress, createdBy) => {
@@ -603,7 +611,9 @@ module.exports.generatePdf = (filterObj, ipAddress, createdBy) => {
       var result;
       Promise.all([collection.findOne({
         "billNumber": filterObj.billNumber
-      }), corporateLinkage.find({ "utilityCode": filterObj.utilityCode }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
+      }), corporateLinkage.find({
+        "utilityCode": filterObj.utilityCode
+      }, {}, 0, 0, ipAddress, createdBy), glParameters.find({}, {}, 0, 0, ipAddress, createdBy)]).then((result) => {
         GST = result[2][0].GSTRate;
         generatePDF(result[0], result[1][0], GST).then((response) => {
           resolve(response);
@@ -642,9 +652,13 @@ function generatePDF(billObject, corporateDetails, GSTRate) {
     billObject.date = moment(billObject.billDate).format("MMMM DD YYYY");
     if (billObject.finalTotalAmount > 0) {
       if (Number(billObject.finalTotalAmount).toFixed(2) % 1 == 0) {
-        billObject.toWords = toWords(billObject.finalTotalAmount, { currency: true })
+        billObject.toWords = toWords(billObject.finalTotalAmount, {
+          currency: true
+        })
       } else {
-        billObject.toWords = toWords(Number(billObject.finalTotalAmount).toFixed(2), { currency: true });
+        billObject.toWords = toWords(Number(billObject.finalTotalAmount).toFixed(2), {
+          currency: true
+        });
       }
     } else {
       billObject.toWords = "Zero";
