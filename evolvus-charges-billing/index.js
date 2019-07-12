@@ -463,8 +463,8 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
         var result = await collection.update({
           billNumber: bill.billNumber
         }, {
-          returnCharges: ChargeAmountAfterFailure + bill.returnCharges,
-          finalTotalAmount: bill.finalTotalAmount + ChargeAmountAfterFailure
+          returnCharges: Number(ChargeAmountAfterFailure) + bill.returnCharges,
+          finalTotalAmount: bill.finalTotalAmount + Number(ChargeAmountAfterFailure)
         });
         debug("Updated Bill with return charges before Posting to CBS", result);
         if (result.nModified != 1) {
@@ -493,7 +493,16 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
         collection.findOne({
           billNumber: bill.billNumber
         }).then(billFound => {
-          updateObject.postingFailureReason = res.data.data.errorDesc;
+          let reasonString = "";
+          if (res.data != null && res.data.data != null && res.data.data.errorDesc != null) {
+            let reasonStringLength = res.data.data.errorDesc.length;
+            if (reasonStringLength > 256) {
+              reasonString = res.data.data.errorDesc.substring(0, 20);
+            } else {
+              reasonString = res.data.data.errorDesc;
+            }
+          }
+          updateObject.postingFailureReason = reasonString;
           updateObject.errorCode = res.data.data.errorCode;
           module.exports.updateWithoutWorkflow(bill.billNumber, updateObject, ipAddress, createdBy).then(() => {
             module.exports.updateWorkflow(billFound.utilityCode, ipAddress, createdBy, bill.billNumber, updateObject).then((updated) => {
