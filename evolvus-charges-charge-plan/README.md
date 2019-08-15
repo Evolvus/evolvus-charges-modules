@@ -1,4 +1,4 @@
-# What is evolvus-charges-gl-parameters ?
+# What is evolvus-charges-plan ?
 
 `evolvus-charges-charge-plan` is a component that encapsulates ChargesPlans management functionality across all Evolvus products.
 
