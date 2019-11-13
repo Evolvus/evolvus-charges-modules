@@ -21,8 +21,9 @@ var shortid = require("shortid");
 var axios = require("axios");
 var name = process.env.APPLICATION_NAME || "CHARGES";
 var ChargesServiceUrl = process.env.CHARGES_SERVICE_URL || "http://192.168.1.18:9292/api";
-var ChargeAmountAfterFailure = process.env.RETURN_CHARGES || 750;
 var errorCode = process.env.ERROR_CODE || "GB3";
+var reattemptInDays = process.env.REATTEMPT_IN_DAYS || 3;
+
 
 billAudit.application = name;
 billAudit.source = "BILLSERVICE";
@@ -356,7 +357,7 @@ module.exports.updateWorkflow = (utilityCode, ipAddress, createdBy, billNumber, 
       } else if (update.processingStatus === "FAILURE") {
         update.billStatus = "CBS_POSTING_FAILURE";
         var date = new Date(); // Get current Date
-        date.setDate(date.getDate() + 3);
+        date.setDate(date.getDate() + Number(reattemptInDays));
         update.reattemptDate = date.toISOString();
         emailFormat = "F";
         flag = "0";
@@ -459,12 +460,15 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
       billAudit.eventDateTime = Date.now();
       billAudit.status = "SUCCESS";
       docketClient.postToDocket(billAudit);
+      let corporateDetails;
       if (bill.errorCode == errorCode) {
+        corporateDetails = await corporateLinkage.find({
+          "utilityCode": bill.utilityCode
+        }, {}, 0, 0, ipAddress, createdBy);       
         var result = await collection.update({
           billNumber: bill.billNumber
         }, {
-          returnCharges: Number(ChargeAmountAfterFailure) + bill.returnCharges,
-          finalTotalAmount: bill.finalTotalAmount + Number(ChargeAmountAfterFailure)
+          finalTotalAmount: bill.finalTotalAmount + corporateDetails[0].returnCharges
         });
         debug("Updated Bill with return charges before Posting to CBS", result);
         if (result.nModified != 1) {
