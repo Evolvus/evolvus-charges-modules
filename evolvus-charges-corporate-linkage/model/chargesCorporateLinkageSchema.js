@@ -41,6 +41,11 @@ module.exports.schema = {
       "maxLength": 15,
       "pattern": "^[A-Za-z0-9]+$"
     },
+    "returnCharges": {
+      "type": "number",
+      "minLength": 1,
+      "maxLength": 10
+    },
     "createdBy": {
       "type": "string"
     },

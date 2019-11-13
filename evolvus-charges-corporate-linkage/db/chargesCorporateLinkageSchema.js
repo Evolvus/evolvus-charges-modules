@@ -59,6 +59,11 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
       message: "{PATH} can contain only alphanumeric."
     }
   },
+  returnCharges: {
+    type: Number,
+    minlength: 1,
+    maxlength: 10
+  },
   createdBy: {
     type: String,
     required: true
