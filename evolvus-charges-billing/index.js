@@ -468,7 +468,7 @@ module.exports.reattempt = (bill, createdBy, ipAddress) => {
         var result = await collection.update({
           billNumber: bill.billNumber
         }, {
-          finalTotalAmount: bill.finalTotalAmount + corporateDetails[0].returnCharges
+          finalTotalAmount: Number(bill.finalTotalAmount) + Number(corporateDetails[0].returnCharges)
         });
         debug("Updated Bill with return charges before Posting to CBS", result);
         if (result.nModified != 1) {
