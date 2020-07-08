@@ -51,7 +51,6 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     type: String,
     min: 15,
     max: 15,
-    required: true,
     validate: {
       validator: function(v) {
         return /^[A-Za-z0-9]+$/.test(v);
