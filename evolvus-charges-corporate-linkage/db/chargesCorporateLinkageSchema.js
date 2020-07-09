@@ -48,15 +48,7 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     }
   },
   GSTINnumber: {
-    type: String,
-    min: 15,
-    max: 15,
-    validate: {
-      validator: function(v) {
-        return /^[A-Za-z0-9]+$/.test(v);
-      },
-      message: "{PATH} can contain only alphanumeric."
-    }
+    type: String
   },
   returnCharges: {
     type: Number,

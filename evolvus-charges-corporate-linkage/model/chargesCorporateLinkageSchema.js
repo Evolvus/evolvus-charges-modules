@@ -36,10 +36,7 @@ module.exports.schema = {
       "pattern": "^[A-Za-z0-9]+$"
     },
     "GSTINnumber": {
-      "type": "string",
-      "minLength": 15,
-      "maxLength": 15,
-      "pattern": "^[A-Za-z0-9]+$"
+      "type": "string"
     },
     "returnCharges": {
       "type": "number",
@@ -69,5 +66,5 @@ module.exports.schema = {
       "default": "false"
     }
   },
-  "required": ["corporateName", "utilityCode", "tenantId", "chargePlan", "corporateAccount", "emailId", "GSTINnumber", "billingAddress", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
+  "required": ["corporateName", "utilityCode", "tenantId", "chargePlan", "corporateAccount", "emailId", "billingAddress", "createdBy", "createdDateAndTime", "updatedBy", "updatedDateAndTime"]
 };
