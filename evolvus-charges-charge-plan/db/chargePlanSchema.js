@@ -19,16 +19,6 @@ var chargePlanSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'chargecode'
   }],
-  description: {
-    type: String,
-    max: 200,
-    validate: {
-      validator: function(v) {
-        return /^[A-Za-z0-9']+( [A-Za-z0-9']+)*$/.test(v);
-      },
-      message: "{PATH} can contain only alphanumeric and single space"
-    }
-  },
   createdBy: {
     type: String,
     required: true
@@ -54,7 +44,37 @@ var chargePlanSchema = new mongoose.Schema({
     type: String,
     enum: ["true", "false"],
     default: "false"
+  },
+ description: {
+    type: String,
+    max: 200,
+    validate: {
+      validator: function (v) {
+        return /^[A-Za-z0-9']+( [A-Za-z0-9']+)*$/.test(v);
+      },
+      message: "{PATH} can contain only alphanumeric and single space"
+    }
+  },
+  processingStatus: {
+    type: String,
+    default: "IN_PROGRESS"
+  },
+  tenantId: {
+    type: String,
+    required: true,
+    minLength: 1,
+    maxLength: 64
+  },
+  wfInstanceId: {
+    type: String,
+    minlength: 0,
+    maxlength: 20
+  },
+  activationStatus: {
+    type: String,
+    enum: ["ACTIVE", "INACTIVE"],
+    default: "INACTIVE"
   }
-});
+  });
 
 module.exports.schema = chargePlanSchema;

@@ -6,12 +6,14 @@ const validate = require("jsonschema")
   .validate;
 const docketClient = require("@evolvus/evolvus-docket-client");
 const chargeplanAudit = docketClient.audit;
+const sweClient = require("@evolvus/evolvus-swe-client");
 
 const Dao = require("@evolvus/evolvus-mongo-dao").Dao;
 const collection = new Dao("chargeplan", dbSchema);
 const chargeCode = require("@evolvus/evolvus-charges-charge-code");
 const name = process.env.APPLICATION_NAME || "CHARGES";
 var modelSchema = model.schema;
+var shortid = require('shortid');
 
 chargeplanAudit.application = name;
 chargeplanAudit.source = "CHARGEPLANSERVICE";
@@ -23,11 +25,15 @@ module.exports = {
 
 // All validations must be performed before we save the object here
 // Once the db layer is called its is assumed the object is valid.
-module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
+module.exports.save = (tenantId, chargePlanObject, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
       if (chargePlanObject == null) {
         throw new Error("IllegalArgumentException: Input value is null or undefined");
+      } else if (ipAddress == null) {
+        throw new Error("IllegalArgumentException:ipAddress is null/undefined");
+      } else if (createdBy == null) {
+        throw new Error("IllegalArgumentException:createdBy is null/undefined");
       }
       chargeplanAudit.name = "CHARGE_PLAN_SAVE INITIALIZED";
       chargeplanAudit.source = "CHARGEPLANSERVICE";
@@ -67,7 +73,37 @@ module.exports.save = (chargePlanObject, ipAddress, createdBy) => {
             chargePlanObject.name = chargePlanObject.name.toUpperCase();
             collection.save(chargePlanObject).then((result) => {
               debug(`saved successfully ${result}`);
-              resolve(result);
+              var sweEventObject = {
+                "tenantId": tenantId,
+                "wfEntity": "CHARGEPLAN",
+                "wfEntityAction": "CREATE",
+                "createdBy": createdBy,
+                "query": result._id,
+                "object": chargePlanObject
+              };
+              debug(`calling sweClient initialize .sweEventObject :${JSON.stringify(sweEventObject)} is a parameter`);
+              sweClient.initialize(sweEventObject).then((sweResult) => {
+                var filterCode = {
+                  "tenantId": tenantId,
+                  "name": chargePlanObject.name
+                };
+                debug(`calling db update filterCode :${JSON.stringify(filterCode)} is a parameter`);
+                collection.update(filterCode, {
+                  "processingStatus": sweResult.data.wfInstanceStatus,
+                  "wfInstanceId": sweResult.data.wfInstanceId
+                }).then((planObject) => {
+                  debug(`collection.update:user updated with workflow status and id:${JSON.stringify(planObject)}`);
+                  resolve(chargePlanObject);
+                }).catch((e) => {
+                  var reference = shortid.generate();
+                  debug(`collection.update promise failed due to :${e} and referenceId :${reference}`);
+                  reject(e);
+                });
+              }).catch((e) => {
+                var reference = shortid.generate();
+                debug(`sweClient.initialize promise failed due to :${e} and referenceId :${reference}`);
+                reject(e);
+              });
             }).catch((e) => {
               debug(`failed to save with an error: ${e}`);
               reject(e);
@@ -139,7 +175,8 @@ module.exports.find = (filter, orderby, skipCount, limit, ipAddress, createdBy) 
   });
 };
 
-module.exports.update = (code, updateObject, ipAddress, createdBy) => {
+
+module.exports.update = (tenantId, code, updateObject, ipAddress, createdBy) => {
   return new Promise((resolve, reject) => {
     try {
       if (updateObject == null) {
@@ -184,6 +221,37 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
             "name": code
           }, updateObject).then((result) => {
             if (result.nModified == 1) {
+              var sweEventObject = {
+                "tenantId": tenantId,
+                "wfEntity": "CHARGEPLAN",
+                "wfEntityAction": "UPDATE",
+                "createdBy": createdBy,
+                "query": findResult[0]._id,
+                "object": findResult[0]                   
+               };
+              debug(`calling sweClient initialize .sweEventObject :${JSON.stringify(sweEventObject)} is a parameter`);
+              sweClient.initialize(sweEventObject).then((sweResult) => {
+                var filterCode = {
+                  "tenantId": tenantId,
+                  "name": findResult[0].name
+                };
+                debug(`calling db update filterCode :${JSON.stringify(filterCode)} is a parameter`);
+                collection.update(filterCode, {
+                  "processingStatus": sweResult.data.wfInstanceStatus,
+                  "wfInstanceId": sweResult.data.wfInstanceId
+                }).then((planObject) => {
+                  debug(`collection.update:chargePlan updated with workflow status and id:${JSON.stringify(codeObject)}`);
+                  resolve(planObject);
+                }).catch((e) => {
+                  var reference = shortid.generate();
+                  debug(`collection.update promise failed due to :${e} and referenceId :${reference}`);
+                  reject(e);
+                });
+              }).catch((e) => {
+                var reference = shortid.generate();
+                debug(`sweClient.initialize promise failed due to :${e} and referenceId :${reference}`);
+                reject(e);
+              });
               debug(`updated successfully ${result}`);
               resolve(result);
             } else {
@@ -210,6 +278,52 @@ module.exports.update = (code, updateObject, ipAddress, createdBy) => {
       chargeplanAudit.status = "FAILURE";
       docketClient.postToDocket(chargeplanAudit);
       debug(`caught exception ${e}`);
+      reject(e);
+    }
+  });
+};
+
+module.exports.updateWorkflow = (tenantId, ipAddress, createdBy, id, update) => {
+  debug(`index update method: tenantId :${tenantId}, id :${id}, update :${JSON.stringify(update)} are parameters`);
+  return new Promise((resolve, reject) => {
+    try {
+      if (tenantId == null || id == null || update == null) {
+        throw new Error("IllegalArgumentException:tenantId/id/update is null or undefined");
+      }
+      chargeplanAudit.name = "CRGPLAN_SWE_UPDATE INITIALIZED";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = `update charge plan with  ${JSON.stringify(update)}`;
+      chargeplanAudit.details = `charge plan update method`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "SUCCESS";
+      docketClient.postToDocket(chargeplanAudit);
+      var filterCode = {
+        "tenantId": tenantId,
+        "_id": id
+      };
+      debug(`calling db update method, filterCode: ${JSON.stringify(filterCode)},update: ${JSON.stringify(update)}`);
+      collection.update(filterCode, update).then((resp) => {
+        debug("updated successfully", resp);
+        resolve(resp);
+      }).catch((error) => {
+        var reference = shortid.generate();
+        debug(`update promise failed due to ${error}, and reference Id :${reference}`);
+        reject(error);
+      });
+    } catch (e) {
+      var reference = shortid.generate();
+      chargeplanAudit.name = "CHRGPLAN_EXCEPTION_ON_SWEUPDATE";
+      chargeplanAudit.source = "CHARGEPLANSERVICE";
+      chargeplanAudit.ipAddress = ipAddress;
+      chargeplanAudit.createdBy = createdBy;
+      chargeplanAudit.keyDataAsJSON = `Charge plan user with object ${JSON.stringify(update)}`;
+      chargeplanAudit.details = `caught Exception on chargeplan_update ${e.message}`;
+      chargeplanAudit.eventDateTime = Date.now();
+      chargeplanAudit.status = "FAILURE";
+      docketClient.postToDocket(chargeplanAudit);
+      debug(`try_catch failure due to :${e} and referenceId :${reference}`);
       reject(e);
     }
   });

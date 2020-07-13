@@ -80,7 +80,28 @@ var chargesCorporateLinkageSchema = new mongoose.Schema({
     type: String,
     enum: ["true", "false"],
     default: "false"
+  },
+  processingStatus: {
+    type: String,
+    default: "IN_PROGRESS"
+  },
+  tenantId: {
+    type: String,
+    required: true,
+    minLength: 1,
+    maxLength: 64
+  },
+  wfInstanceId: {
+    type: String,
+    minlength: 0,
+    maxlength: 20
+  },
+  activationStatus: {
+    type: String,
+    enum: ["ACTIVE", "INACTIVE"],
+    default: "INACTIVE"
   }
+
 });
 
 module.exports.schema = chargesCorporateLinkageSchema;
