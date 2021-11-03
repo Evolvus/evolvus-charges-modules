@@ -29,7 +29,7 @@
     "jsonschema": "^1.2.4",
     "lodash": "^4.17.11",
     "mongoose": "^5.3.4",
-    "validator": "^9.4.1"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
